@@ -1,3 +1,4 @@
+import 'module-alias/register';
 import express from 'express';
 import router from './routes';
 
@@ -14,3 +15,5 @@ app.use(router);
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`)
 });
+
+export default app;
