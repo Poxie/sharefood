@@ -7,7 +7,7 @@ frontend/.pnp
 .yarn/install-state.gz
 
 # testing
-frontend/coverage
+coverage
 
 # next.js
 frontend/.next/
