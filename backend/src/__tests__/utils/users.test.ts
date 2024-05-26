@@ -45,4 +45,23 @@ describe('Users Utils', () => {
             expect(spy).toHaveBeenCalledTimes(2);
         })
     })
+
+    describe('getUserById', () => {
+        it('should return a user if the user exists', async () => {
+            const user = mockUser(['password']);
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const result = await Users.getUserById(user.id);
+
+            expect(result).toEqual(user);
+            expect(result).not.toHaveProperty('password');
+        })
+
+        it('should return null if the user does not exist', async () => {
+            const id = 'nonexistent';
+            prismaMock.user.findUnique.mockResolvedValue(null);
+
+            expect(Users.getUserById(id)).resolves.toBeNull();
+        })
+    })
 })

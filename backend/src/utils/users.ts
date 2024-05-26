@@ -1,7 +1,6 @@
 import { PrismaClient, User } from "@prisma/client";
 import { ID_LENGTH } from "./constants";
-
-const prisma = new PrismaClient();
+import prisma from "@/../client";
 
 export const generateUserId: () => Promise<string> = async () => {
     const id = Math.random().toString(36).slice(2, ID_LENGTH + 2);
@@ -13,10 +12,12 @@ export const generateUserId: () => Promise<string> = async () => {
 }
 
 export default class Users {
-    static async getUserById(id: string, withPassword: boolean = false) {
+    static async getUserById(id: string) {
         const user = await prisma.user.findUnique({ where: { id } });
         if(!user) return null;
 
-        return withPassword ? user : { ...user, password: undefined };
+        return Object.fromEntries(
+            Object.entries(user).filter(([key]) => key !== 'password')
+        ) as Omit<User, 'password'>
     }
 }
