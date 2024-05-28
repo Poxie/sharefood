@@ -25,10 +25,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         })
         return res.send(user);
     } catch(error) {
-        // If the username is already taken, return a 401 status code
-        if(error instanceof UsernameAlreadyTakenError) {
-            return res.status(error.statusCode).send(error.message);
-        }
+        return next(error);
     }
 });
 
