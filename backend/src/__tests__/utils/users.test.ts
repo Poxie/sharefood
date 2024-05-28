@@ -1,7 +1,13 @@
-import Users, { generateUserId } from '@/utils/users';
+import bcrypt from 'bcrypt';
+import * as UserUtils from '@/utils/users';
 import { prismaMock } from '../../../singleton';
 import { User } from '@prisma/client';
 import { ID_LENGTH } from '@/utils/constants';
+import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
+
+jest.mock('bcrypt', () => ({
+    hash: jest.fn().mockResolvedValue('hashedPassword'),
+}));
 
 // Mock data
 const mockUser: (excludedFields?: (keyof User)[]) => User = (excludedFields=[]) => {
@@ -16,6 +22,9 @@ const mockUser: (excludedFields?: (keyof User)[]) => User = (excludedFields=[]) 
         return acc;
     }, user);
 };
+
+const Users = UserUtils.default;
+const { generateUserId } = UserUtils;
 
 describe('Users Utils', () => {
     afterEach(() => {
@@ -62,6 +71,40 @@ describe('Users Utils', () => {
             prismaMock.user.findUnique.mockResolvedValue(null);
 
             expect(Users.getUserById(id)).resolves.toBeNull();
+        })
+    })
+
+    describe('createUser', () => {
+        it('should create a new user with encrypted password', async () => {
+            const user = mockUser(['password']);
+
+            prismaMock.user.create.mockResolvedValue(user);
+            const hashSpy = jest.spyOn(bcrypt, 'hash');
+            const idSpy = jest.spyOn(UserUtils, 'generateUserId');
+
+            const result = await Users.createUser({
+                username: user.username,
+                password: user.password,
+            });
+
+            expect(result).toEqual(user);
+            expect(hashSpy).toHaveBeenCalledTimes(1);
+            expect(idSpy).toHaveBeenCalledTimes(1);
+            expect(prismaMock.user.create).toHaveBeenCalledWith({ data: {
+                ...user,
+                id: expect.any(String),
+                password: 'hashedPassword',
+                createdAt: expect.any(String),
+            } });
+        })
+        it('should throw an error if the username is already taken', async () => {
+            // Code P2002 is error code for unique constraint violation
+            prismaMock.user.create.mockRejectedValue({ code: 'P2002' });
+
+            await expect(Users.createUser({
+                username: 'test',
+                password: 'password',
+            })).rejects.toEqual(new UsernameAlreadyTakenError());
         })
     })
 })
