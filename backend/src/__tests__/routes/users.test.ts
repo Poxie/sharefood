@@ -3,6 +3,7 @@ import app from "../../app";
 import { prismaMock } from "../../../singleton";
 import { User } from "@prisma/client";
 import Users from "@/utils/users";
+import * as Auth from '@/utils/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
 
 const request = supertest(app);
@@ -29,11 +30,12 @@ describe('Users Routes', () => {
             prismaMock.user.create.mockResolvedValue(user);
         })
 
-        it('should create a new user', async () => {
+        it('should create a new user and sign a token', async () => {
             const user = mockUser(['password']);
             const password = 'password';
 
-            const spy = jest.spyOn(Users, 'createUser');
+            const spyCreateUser = jest.spyOn(Users, 'createUser');
+            const spySignToken = jest.spyOn(Auth, 'signToken');
 
             const response = await request.post('/users').send({
                 username: user.username,
@@ -41,11 +43,16 @@ describe('Users Routes', () => {
             });
 
             expect(response.status).toBe(200);
-            expect(response.body).toHaveProperty('id');
-            expect(response.body).toHaveProperty('username');
-            expect(response.body).toHaveProperty('createdAt');
-            expect(response.body).not.toHaveProperty('password');
-            expect(spy).toHaveBeenCalledWith({ username: user.username, password });
+
+            expect(response.body.user).toEqual({
+                ...user,
+                id: expect.any(String),
+                createdAt: expect.any(String),
+            });
+            expect(response.body.accessToken).toEqual(expect.any(String));
+
+            expect(spyCreateUser).toHaveBeenCalledWith({ username: user.username, password });
+            expect(spySignToken).toHaveBeenCalledWith(user.id);
         })
         it('should return a 401 status code if the username is already taken', async () => {
             // Code P2002 is thrown when a unique constraint is violated

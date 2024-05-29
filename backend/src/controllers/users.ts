@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import Users from '../utils/users';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import ArgumentMissingError from '@/errors/ArgumentMissingError';
+import { signToken } from '@/utils/auth';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -22,8 +23,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         const user = await Users.createUser({ 
             username, 
             password, 
-        })
-        return res.send(user);
+        });
+
+        const accessToken = signToken(user.id);
+
+        return res.send({
+            user,
+            accessToken,
+        });
     } catch(error) {
         return next(error);
     }
