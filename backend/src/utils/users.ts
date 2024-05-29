@@ -52,4 +52,8 @@ export default class Users {
             throw error;
         }
     }
+    static async deleteUser(id: string) {
+        await prisma.user.delete({ where: { id } });
+        return true;
+    }
 }

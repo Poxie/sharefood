@@ -107,4 +107,14 @@ describe('Users Utils', () => {
             })).rejects.toEqual(new UsernameAlreadyTakenError());
         })
     })
+    describe('deleteUser', () => {
+        it('should delete a user', async () => {
+            const id = '1';
+
+            const result = await Users.deleteUser(id);
+
+            expect(result).toBe(true);
+            expect(prismaMock.user.delete).toHaveBeenCalledWith({ where: { id } });
+        })
+    })
 })
