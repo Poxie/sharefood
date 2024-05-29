@@ -5,7 +5,7 @@ import prisma from "@/../client";
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 
 export const generateUserId: () => Promise<string> = async () => {
-    const id = Math.random().toString(36).slice(2, ID_LENGTH + 2);
+    const id = Math.random().toString().slice(2, ID_LENGTH + 2);
 
     const exists = await Users.getUserById(id);
     if(exists) return generateUserId();
