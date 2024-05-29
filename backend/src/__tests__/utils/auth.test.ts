@@ -1,10 +1,6 @@
 import { signToken } from '../../utils/auth';
 import jwt from 'jsonwebtoken';
 
-jest.mock('jsonwebtoken', () => ({
-    sign: jest.fn().mockReturnValue('accesstoken'),
-}));
-
 describe('Auth Utils', () => {
     describe('signToken', () => {
         it('should generate a token', () => {
