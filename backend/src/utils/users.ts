@@ -24,12 +24,20 @@ function exclude<User, Key extends keyof User>(
     ) as Omit<User, Key>;
 }
 export default class Users {
+    static async isAdmin(id: string) {
+        const user = await prisma.user.findUnique({ where: { id } });
+        if(!user) throw new UserNotFoundError();
+
+        return user.isAdmin;
+    }
+
     static async getUserById(id: string) {
         const user = await prisma.user.findUnique({ where: { id } });
         if(!user) return null;
 
         return exclude(user, ['password']);
     }
+    
     static async createUser({ username, password }: { 
         username: string, password: string 
     }) {
@@ -42,6 +50,7 @@ export default class Users {
                     username,
                     password: hashedPassword,
                     createdAt: new Date().getTime().toString(),
+                    isAdmin: false,
                 }
             });
             

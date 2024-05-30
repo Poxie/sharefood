@@ -4,6 +4,7 @@ import { prismaMock } from '../../../singleton';
 import { User } from '@prisma/client';
 import { ID_LENGTH } from '@/utils/constants';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
+import UserNotFoundError from '@/errors/UserNotFoundError';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
@@ -16,6 +17,7 @@ const mockUser: (excludedFields?: (keyof User)[]) => User = (excludedFields=[]) 
         username: 'test',
         password: 'password',
         createdAt: new Date().getTime().toString(),
+        isAdmin: false,
     }
     return excludedFields.reduce((acc, field) => {
         delete acc[field];
@@ -115,6 +117,37 @@ describe('Users Utils', () => {
 
             expect(result).toBe(true);
             expect(prismaMock.user.delete).toHaveBeenCalledWith({ where: { id } });
+        })
+    })
+
+    describe('isAdmin', () => {
+        it('should return true if the user is an admin', async () => {
+            const user = mockUser(['password']);
+            user.isAdmin = true;
+
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const result = await Users.isAdmin(user.id);
+
+            expect(result).toBe(true);
+        })
+        it('should return false if the user is not an admin', async () => {
+            const user = mockUser(['password']);
+
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const result = await Users.isAdmin(user.id);
+
+            expect(result).toBe(false);
+        })
+        it('should throw an error if the user does not exist', async () => {
+            prismaMock.user.findUnique.mockResolvedValue(null);
+
+            try {
+                await Users.isAdmin('nonexistent');
+            } catch(error) {
+                expect(error).toBeInstanceOf(UserNotFoundError);
+            }
         })
     })
 })
