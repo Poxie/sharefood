@@ -1,3 +1,4 @@
+import InvalidAccessTokenError from '@/errors/InvalidAccessTokenError';
 import jwt from 'jsonwebtoken'
 
 const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
@@ -5,4 +6,18 @@ const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
 export const signToken = (userId: string) => {
     if(!JWT_PRIVATE_KEY) throw new Error('JWT_PRIVATE_KEY is not defined');
     return jwt.sign({ userId }, JWT_PRIVATE_KEY);
+}
+
+export const verifyToken = (authHeader: string | undefined) => {
+    if(!JWT_PRIVATE_KEY) throw new Error('JWT_PRIVATE_KEY is not defined');
+
+    const accessToken = authHeader?.split(' ').at(1);
+    if(!accessToken) throw new InvalidAccessTokenError('Access token is missing');
+
+    try {
+        const data = jwt.verify(accessToken, JWT_PRIVATE_KEY) as { userId: string };
+        return data.userId;
+    } catch(error) {
+        throw new InvalidAccessTokenError('Invalid access token');
+    }
 }
