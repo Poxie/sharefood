@@ -5,6 +5,7 @@ import { User } from "@prisma/client";
 import Users from "@/utils/users";
 import * as Auth from '@/utils/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
+import UserNotFoundError from "@/errors/UserNotFoundError";
 
 const request = supertest(app);
 
@@ -23,6 +24,10 @@ const mockUser: (excludedFields?: (keyof User)[]) => User = (excludedFields=[]) 
 };
 
 describe('Users Routes', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    })
+
     describe('POST /users', () => {
         const user = mockUser(['password']);
 
@@ -77,5 +82,27 @@ describe('Users Routes', () => {
                 expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
             });
         });
+    })
+    describe('DELETE /users/:id', () => {
+        it('should delete a user', async () => {
+            const id = '1';
+            const spyDeleteUser = jest.spyOn(Users, 'deleteUser').mockResolvedValue(true);
+
+            const response = await request.delete(`/users/${id}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({});
+
+            expect(spyDeleteUser).toHaveBeenCalledWith(id);
+        })
+        it('should return a 404 status code if the user does not exist', async () => {
+            jest.spyOn(Users, 'deleteUser').mockRejectedValue(new UserNotFoundError());
+            
+            const id = 'nonexistent';
+            const response = await request.delete(`/users/${id}`);
+
+            expect(response.status).toBe(ERROR_CODES.NOT_FOUND);
+            expect(response.body).toEqual({ message: new UserNotFoundError().message });
+        })
     })
 })

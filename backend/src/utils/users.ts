@@ -3,6 +3,7 @@ import { PrismaClient, User } from "@prisma/client";
 import { ID_LENGTH } from "./constants";
 import prisma from "@/../client";
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
+import UserNotFoundError from '@/errors/UserNotFoundError';
 
 export const generateUserId: () => Promise<string> = async () => {
     const id = Math.random().toString().slice(2, ID_LENGTH + 2);
@@ -53,7 +54,14 @@ export default class Users {
         }
     }
     static async deleteUser(id: string) {
-        await prisma.user.delete({ where: { id } });
-        return true;
+        try {
+            await prisma.user.delete({ where: { id } });
+            return true;
+        } catch(error) {
+            if((error as any).code === 'P2025') {
+                throw new UserNotFoundError();
+            }
+            throw error;
+        }
     }
 }

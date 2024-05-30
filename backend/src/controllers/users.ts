@@ -4,6 +4,7 @@ import Users from '../utils/users';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import ArgumentMissingError from '@/errors/ArgumentMissingError';
 import { signToken } from '@/utils/auth';
+import UserNotFoundError from '@/errors/UserNotFoundError';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -35,5 +36,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         return next(error);
     }
 });
+
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    try {
+        await Users.deleteUser(id);
+        return res.send({});
+    } catch(error) {
+        return next(error);
+    }
+})
 
 export default router;
