@@ -7,6 +7,8 @@ import { signToken, verifyToken } from '@/utils/auth';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import auth from '@/middleware/auth';
+import { ALLOWED_USER_FIELDS } from '@/utils/constants';
+import BadRequestError from '@/errors/BadRequestError';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -52,6 +54,29 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     }
 
     res.send({});
+})
+
+router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    const { userId, isAdmin } = res.locals;
+    if(userId !== id && !isAdmin) {
+        return next(new UnauthorizedError());
+    }
+
+    const data = req.body;
+
+    const invalidProperty = Object.keys(data).find(prop => !ALLOWED_USER_FIELDS.includes(prop));
+    if(invalidProperty) {
+        return next(new BadRequestError(`Invalid property: ${invalidProperty}`));
+    }
+
+    try {
+        const user = await Users.updateUser(id, data);
+        res.send(user);
+    } catch(error) {
+        return next(error);
+    }
 })
 
 export default router;

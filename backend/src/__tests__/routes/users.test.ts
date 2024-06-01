@@ -141,4 +141,80 @@ describe('Users Routes', () => {
             expect(response.body).toEqual({ message: new UserNotFoundError().message });
         })
     })
+    describe('PATCH /users/:id', () => {
+        it('should update a user if the logged in user is an admin', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, username: 'newUsername' };
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('1');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
+            jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+
+            const response = await request.patch(`/users/${user.id}`).send({ username: updatedUser.username });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(updatedUser);
+        });
+        it('should update a user if the logged in user is the owner', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, username: 'newUsername' };
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue(user.id);
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(false);
+            jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+
+            const response = await request.patch(`/users/${user.id}`).send({ username: updatedUser.username });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(updatedUser);
+        });
+        it('should return a 401 status code if the user is not the owner or an admin', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, username: 'newUsername' };
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('2');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(false);
+
+            const response = await request.patch(`/users/${user.id}`).send({ username: updatedUser.username });
+
+            expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(response.body).toEqual({ message: new UnauthorizedError().message });
+        });
+        it('should throw an error if unknown fields are passed', async () => {
+            const user = mockUser(['password']);
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('1');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
+
+            const response = await request.patch(`/users/${user.id}`).send({ unknown: 'field' });
+
+            expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+            expect(response.body).toEqual({ message: 'Invalid property: unknown' });
+        })
+        describe.each([
+            { id: 'newid' },
+            { createdAt: 'newDate' },
+        ])(`if immutable fields are passed`, (data) => {
+            it('should not update the user', async () => {
+                const user = mockUser(['password']);
+
+                const response = await request.patch(`/users/${user.id}`).send(data);
+
+                expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+                expect(response.body).toEqual({ message: 'Invalid property: ' + Object.keys(data)[0] });
+            })
+        })
+        it('should return a 404 status code if the user does not exist', async () => {
+            const id = 'nonexistant';
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('1');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
+            jest.spyOn(Users, 'updateUser').mockRejectedValue(new UserNotFoundError());
+
+            const response = await request.patch(`/users/${id}`).send({ username: 'newUsername' });
+
+            expect(response.status).toBe(ERROR_CODES.NOT_FOUND);
+            expect(response.body).toEqual({ message: new UserNotFoundError().message });
+        });
+    })
 })

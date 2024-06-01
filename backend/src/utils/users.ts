@@ -6,6 +6,7 @@ import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 import UnauthorizedError from '@/errors/UnauthorizedError';
+import BadRequestError from '@/errors/BadRequestError';
 
 export const generateUserId: () => Promise<string> = async () => {
     const id = Math.random().toString().slice(2, ID_LENGTH + 2);
@@ -76,8 +77,11 @@ export default class Users {
         }
     }
     static async updateUser(id: string, data: Partial<User>) {
-        if(Object.keys(data).find(prop => IMMUTABLE_USER_FIELDS.includes(prop))) {
-            throw new UnauthorizedError();
+        const invalidProperties = Object.keys(data).filter(prop => !IMMUTABLE_USER_FIELDS.includes(prop));
+        if(invalidProperties.length > 0) {
+            let message = invalidProperties.length === 1 ? 'Invalid property: ' : 'Invalid properties: ';
+            message += invalidProperties.join(', ');
+            throw new BadRequestError(message);
         }
 
         try {
