@@ -51,18 +51,18 @@ describe('Input', () => {
 
         expect(onSubmit).toHaveBeenCalledWith(text);
     })
-    it('should render the icon element if provided', () => {
-        const { getByRole } = render(<Input icon={<SendIcon />} />);
+    it('should render the submit icon element if provided', () => {
+        const { getByRole } = render(<Input submitIcon={<SendIcon />} />);
 
         const icon = getByRole('button');
 
         expect(icon).toBeInTheDocument();
     })
-    it('should call the onSubmit function when the icon is clicked', () => {
+    it('should call the onSubmit function when the submit icon is clicked', () => {
         const onSubmit = jest.fn();
 
         const text = 'Hello';
-        const { getByRole } = render(<Input icon={<SendIcon />} onSubmit={onSubmit} defaultValue={text} />);
+        const { getByRole } = render(<Input submitIcon={<SendIcon />} onSubmit={onSubmit} defaultValue={text} />);
 
         const icon = getByRole('button');
 
@@ -88,10 +88,10 @@ describe('Input', () => {
 
         expect(container).toHaveClass(className);
     })
-    it('should set iconClassName on the icon element if provided', () => {
+    it('should set submitIconClassName on the icon element if provided', () => {
         const className = 'text-primary';
 
-        const { getByRole } = render(<Input icon={<SendIcon />} iconClassName={className} />);
+        const { getByRole } = render(<Input submitIcon={<SendIcon />} submitIconClassName={className} />);
 
         const icon = getByRole('button');
 

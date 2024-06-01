@@ -2,13 +2,13 @@
 import { useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, containerClassName }: {
+export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, submitIcon, submitIconClassName, containerClassName }: {
     onChange?: (text: string) => void;
     onSubmit?: (text: string) => void;
     className?: string;
     placeholder?: string;
-    icon?: React.ReactElement;
-    iconClassName?: string;
+    submitIcon?: React.ReactElement;
+    submitIconClassName?: string;
     containerClassName?: string;
     defaultValue?: string;
 }) {
@@ -48,15 +48,15 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
                 value={defaultValue}
                 ref={ref}
             />
-            {icon && (
+            {submitIcon && (
                 <button 
                     className={twMerge(
                         "absolute right-2",
-                        iconClassName,
+                        submitIconClassName,
                     )}
                     onClick={handleSubmit}
                 >
-                    {icon}
+                    {submitIcon}
                 </button>
             )}
         </div>
