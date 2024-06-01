@@ -1,7 +1,3 @@
-export default function Home() {
-  return (
-    <main>
-      
-    </main>
-  );
-}
+import Home from '@/components/home';
+
+export default Home;
