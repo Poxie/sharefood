@@ -77,11 +77,16 @@ export default class Users {
         }
     }
     static async updateUser(id: string, data: Partial<User>) {
-        const invalidProperties = Object.keys(data).filter(prop => !IMMUTABLE_USER_FIELDS.includes(prop));
+        const invalidProperties = Object.keys(data).filter(prop => IMMUTABLE_USER_FIELDS.includes(prop));
         if(invalidProperties.length > 0) {
             let message = invalidProperties.length === 1 ? 'Invalid property: ' : 'Invalid properties: ';
             message += invalidProperties.join(', ');
             throw new BadRequestError(message);
+        }
+
+        // If password is passed, hash it
+        if(data.password) {
+            data.password = await bcrypt.hash(data.password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
         }
 
         try {

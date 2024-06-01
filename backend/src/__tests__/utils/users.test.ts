@@ -7,6 +7,7 @@ import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 import UnauthorizedError from '@/errors/UnauthorizedError';
+import BadRequestError from '@/errors/BadRequestError';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
@@ -135,9 +136,24 @@ describe('Users Utils', () => {
                 data: { username: updatedUser.username },
             });
         })
+        it('should hash the password if it is passed', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, password: 'newPassword' };
+
+            const spy = jest.spyOn(bcrypt, 'hash');
+            prismaMock.user.update.mockResolvedValue(updatedUser);
+
+            const result = await Users.updateUser(user.id, { password: updatedUser.password });
+
+            expect(result).toEqual(user);
+            expect(prismaMock.user.update).toHaveBeenCalledWith({ 
+                where: { id: user.id }, 
+                data: { password: 'hashedPassword' },
+            });
+            expect(spy).toHaveBeenCalledWith(updatedUser.password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
+        })
         describe.each([
             { id: 'newId' },
-            { password: 'newPassword' },
             { createdAt: 'newDate' },
         ])('if immutable fields are passed', (data) => {
             it('should not update the user', async () => {
@@ -150,7 +166,7 @@ describe('Users Utils', () => {
                     error = e;
                 }
 
-                expect(error).toBeInstanceOf(UnauthorizedError);
+                expect(error).toBeInstanceOf(BadRequestError);
                 expect(prismaMock.user.update).not.toHaveBeenCalled();
             })
         })
