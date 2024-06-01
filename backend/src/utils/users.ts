@@ -4,6 +4,7 @@ import { ID_LENGTH } from "./constants";
 import prisma from "@/../client";
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
+import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 
 export const generateUserId: () => Promise<string> = async () => {
     const id = Math.random().toString().slice(2, ID_LENGTH + 2);
@@ -56,7 +57,7 @@ export default class Users {
             
             return exclude(user, ['password']);
         } catch(error) {
-            if((error as any).code === 'P2002') {
+            if((error as any).code === PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT_VIOLATION) {
                 throw new UsernameAlreadyTakenError();
             }
             throw error;
@@ -67,7 +68,7 @@ export default class Users {
             await prisma.user.delete({ where: { id } });
             return true;
         } catch(error) {
-            if((error as any).code === 'P2025') {
+            if((error as any).code === PRISMA_ERROR_CODES.RECORD_NOT_FOUND) {
                 throw new UserNotFoundError();
             }
             throw error;

@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { ID_LENGTH } from '@/utils/constants';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
+import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
@@ -100,8 +101,7 @@ describe('Users Utils', () => {
             } });
         })
         it('should throw an error if the username is already taken', async () => {
-            // Code P2002 is error code for unique constraint violation
-            prismaMock.user.create.mockRejectedValue({ code: 'P2002' });
+            prismaMock.user.create.mockRejectedValue({ code: PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT_VIOLATION });
 
             await expect(Users.createUser({
                 username: 'test',
