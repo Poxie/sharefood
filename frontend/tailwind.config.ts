@@ -24,6 +24,7 @@ const config: Config = {
         primary: "#0f172a",
         muted: "#475569",
         light: "#fff",
+        'c-primary': "#FF2264",
       },
       width: {
         main: '1100px',
