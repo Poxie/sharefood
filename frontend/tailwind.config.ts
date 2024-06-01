@@ -15,6 +15,11 @@ const config: Config = {
         "c-primary": "#FF2264",
         "c-accent": "#E32961",
       },
+      borderColor: {
+        primary: "#fff",
+        secondary: "#F2F2F2",
+        tertiary: "#E7E7E7",
+      },
       textColor: {
         primary: "#0f172a",
         muted: "#475569",
