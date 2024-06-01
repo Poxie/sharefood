@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react';
-import NavbarOptions from '../components/navbar/NavbarOptions';
+import NavbarOptions from '@/components/navbar/NavbarOptions';
 
 describe('NavbarOptions', () => {
     beforeEach(() => {

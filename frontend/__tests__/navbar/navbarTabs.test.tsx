@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen } from "@testing-library/react";
-import NavbarTabs, { NAVBAR_TABS } from "../components/navbar/NavbarTabs";
+import NavbarTabs, { NAVBAR_TABS } from '@/components/navbar/NavbarTabs';
 
 jest.mock('next/navigation', () => ({
     usePathname: jest.fn(() => '/'),
