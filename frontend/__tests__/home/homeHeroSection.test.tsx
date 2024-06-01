@@ -23,4 +23,8 @@ describe('HomeHeroSection', () => {
         expect(heading).toBeInTheDocument();
         expect(paragraph).toBeInTheDocument();
     })
+    it('should render the hero buttons', () => {
+        const buttons = screen.getByTestId('home-hero-buttons');
+        expect(buttons).toBeInTheDocument();
+    })
 })
