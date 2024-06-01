@@ -44,7 +44,9 @@ export default class Users {
     static async createUser({ username, password }: { 
         username: string, password: string 
     }) {
-        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS || '10'));
+        if(!process.env.BCRYPT_SALT_ROUNDS) throw new Error('BCRYPT_SALT_ROUNDS is not defined in the environment variables.');
+        
+        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
 
         try {
             const user = await prisma.user.create({
@@ -77,6 +79,8 @@ export default class Users {
         }
     }
     static async updateUser(id: string, data: Partial<User>) {
+        if(!process.env.BCRYPT_SALT_ROUNDS) throw new Error('BCRYPT_SALT_ROUNDS is not defined in the environment variables.');
+
         const immutableProps = Object.keys(data).filter(prop => IMMUTABLE_USER_FIELDS.includes(prop));
         const unknownProps = Object.keys(data).filter(prop => !ALLOWED_USER_FIELDS.includes(prop));
         const invalidProps = immutableProps.concat(unknownProps);
