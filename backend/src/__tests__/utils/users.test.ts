@@ -6,6 +6,7 @@ import { ID_LENGTH } from '@/utils/constants';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
+import UnauthorizedError from '@/errors/UnauthorizedError';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
@@ -117,6 +118,50 @@ describe('Users Utils', () => {
 
             expect(result).toBe(true);
             expect(prismaMock.user.delete).toHaveBeenCalledWith({ where: { id } });
+        })
+    })
+    describe('updateUser', () => {
+        it('should update a user', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, username: 'newUsername' };
+
+            prismaMock.user.update.mockResolvedValue(updatedUser);
+
+            const result = await Users.updateUser(user.id, { username: updatedUser.username });
+
+            expect(result).toEqual(updatedUser);
+            expect(prismaMock.user.update).toHaveBeenCalledWith({ 
+                where: { id: user.id }, 
+                data: { username: updatedUser.username },
+            });
+        })
+        describe.each([
+            { id: 'newId' },
+            { password: 'newPassword' },
+            { createdAt: 'newDate' },
+        ])('if immutable fields are passed', (data) => {
+            it('should not update the user', async () => {
+                const user = mockUser(['password']);
+
+                let error;
+                try {
+                    await Users.updateUser(user.id, data);
+                } catch(e) {
+                    error = e;
+                }
+
+                expect(error).toBeInstanceOf(UnauthorizedError);
+                expect(prismaMock.user.update).not.toHaveBeenCalled();
+            })
+        })
+        it('should throw an error if the user does not exist', async () => {
+            prismaMock.user.update.mockRejectedValue({ code: PRISMA_ERROR_CODES.RECORD_NOT_FOUND });
+
+            try {
+                await Users.updateUser('nonexistent', {});
+            } catch(error) {
+                expect(error).toBeInstanceOf(UserNotFoundError);
+            }
         })
     })
 

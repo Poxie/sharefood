@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient, User } from "@prisma/client";
-import { ID_LENGTH } from "./constants";
+import { ID_LENGTH, IMMUTABLE_USER_FIELDS } from "./constants";
 import prisma from "@/../client";
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
+import UnauthorizedError from '@/errors/UnauthorizedError';
 
 export const generateUserId: () => Promise<string> = async () => {
     const id = Math.random().toString().slice(2, ID_LENGTH + 2);
@@ -67,6 +68,21 @@ export default class Users {
         try {
             await prisma.user.delete({ where: { id } });
             return true;
+        } catch(error) {
+            if((error as any).code === PRISMA_ERROR_CODES.RECORD_NOT_FOUND) {
+                throw new UserNotFoundError();
+            }
+            throw error;
+        }
+    }
+    static async updateUser(id: string, data: Partial<User>) {
+        if(Object.keys(data).find(prop => IMMUTABLE_USER_FIELDS.includes(prop))) {
+            throw new UnauthorizedError();
+        }
+
+        try {
+            const user = await prisma.user.update({ where: { id }, data });
+            return exclude(user, ['password']);
         } catch(error) {
             if((error as any).code === PRISMA_ERROR_CODES.RECORD_NOT_FOUND) {
                 throw new UserNotFoundError();
