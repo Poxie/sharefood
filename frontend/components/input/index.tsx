@@ -42,7 +42,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
                 <div 
                     data-testid="input-icon"
                     className={twMerge(
-                        "absolute",
+                        "absolute h-full aspect-square flex items-center justify-center text-muted pointer-events-none",
                         iconClassName,
                     )}
                 >
@@ -52,7 +52,10 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
             <input 
                 type="text"
                 className={twMerge(
-                    "w-full p-4 rounded-md border-[1px] border-tertiary",
+                    "w-full p-3 rounded-md border-[1px] border-tertiary",
+                    icon && (
+                        "pl-12"
+                    ),
                     className,
                 )}
                 onChange={handleChange}
@@ -65,7 +68,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
                 <button 
                     data-testid="input-submit-icon"
                     className={twMerge(
-                        "absolute right-2",
+                        "[--from-edge:1rem] absolute top-2/4 -translate-y-2/4 right-[calc(var(--from-edge)/2)] h-[calc(100%-var(--from-edge))] aspect-square flex items-center justify-center text-c-primary hover:bg-secondary transition-colors rounded-lg",
                         submitIconClassName,
                     )}
                     onClick={handleSubmit}
