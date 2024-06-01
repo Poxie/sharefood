@@ -3,8 +3,10 @@ import { PrismaClient } from '@prisma/client';
 import Users from '../utils/users';
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import ArgumentMissingError from '@/errors/ArgumentMissingError';
-import { signToken } from '@/utils/auth';
+import { signToken, verifyToken } from '@/utils/auth';
 import UserNotFoundError from '@/errors/UserNotFoundError';
+import UnauthorizedError from '@/errors/UnauthorizedError';
+import auth from '@/middleware/auth';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -37,15 +39,19 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
+    const { userId, isAdmin } = res.locals;
+    if(userId !== id && !isAdmin) return next(new UnauthorizedError());
+    
     try {
         await Users.deleteUser(id);
-        return res.send({});
     } catch(error) {
         return next(error);
     }
+
+    res.send({});
 })
 
 export default router;

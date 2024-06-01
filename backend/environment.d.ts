@@ -6,6 +6,12 @@ declare global {
             JWT_PRIVATE_KEY: string;
         }
     }
+    namespace Express {
+        interface Locals {
+            userId: string;
+            isAdmin: boolean;
+        }
+    }
 }
 
-export default {};
+export {};

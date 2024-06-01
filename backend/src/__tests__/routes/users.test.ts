@@ -6,6 +6,7 @@ import Users from "@/utils/users";
 import * as Auth from '@/utils/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
 import UserNotFoundError from "@/errors/UserNotFoundError";
+import UnauthorizedError from "@/errors/UnauthorizedError";
 
 const request = supertest(app);
 
@@ -16,6 +17,7 @@ const mockUser: (excludedFields?: (keyof User)[]) => User = (excludedFields=[]) 
         username: 'test',
         password: 'password',
         createdAt: new Date().getTime().toString(),
+        isAdmin: false,
     }
     return excludedFields.reduce((acc, field) => {
         delete acc[field];
@@ -84,9 +86,27 @@ describe('Users Routes', () => {
         });
     })
     describe('DELETE /users/:id', () => {
-        it('should delete a user', async () => {
+        it('should delete a user if the user is an admin', async () => {
             const id = '1';
-            const spyDeleteUser = jest.spyOn(Users, 'deleteUser').mockResolvedValue(true);
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue(id);
+            const spyDeleteUser = jest.spyOn(Users, 'deleteUser');
+            const spyIsAdmin = jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
+
+            const response = await request.delete(`/users/${id}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({});
+
+            expect(spyDeleteUser).toHaveBeenCalledWith(id);
+            expect(spyIsAdmin).toHaveBeenCalledWith(id);
+        })
+        it('should delete a user if the user is the owner', async () => {
+            const id = '1';
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue(id);
+            const spyDeleteUser = jest.spyOn(Users, 'deleteUser');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(false);
 
             const response = await request.delete(`/users/${id}`);
 
@@ -95,10 +115,26 @@ describe('Users Routes', () => {
 
             expect(spyDeleteUser).toHaveBeenCalledWith(id);
         })
+        it('should return a 401 status code if the user is not the owner or an admin', async () => {
+            const id = '1';
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('2');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(false);
+            const spyDeleteUser = jest.spyOn(Users, 'deleteUser');
+
+            const response = await request.delete(`/users/${id}`);
+
+            expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(response.body).toEqual({ message: new UnauthorizedError().message });
+            expect(spyDeleteUser).not.toHaveBeenCalled();
+        })
         it('should return a 404 status code if the user does not exist', async () => {
+            const id = 'nonexistant';
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('2');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
             jest.spyOn(Users, 'deleteUser').mockRejectedValue(new UserNotFoundError());
-            
-            const id = 'nonexistent';
+
             const response = await request.delete(`/users/${id}`);
 
             expect(response.status).toBe(ERROR_CODES.NOT_FOUND);
