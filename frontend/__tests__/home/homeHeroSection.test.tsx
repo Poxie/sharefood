@@ -1,8 +1,10 @@
 import '@testing-library/jest-dom';
-import HomeHeroSection from '@/components/home/HeroSection';
-import { render, screen } from '@testing-library/react';
+import HomeHeroSection from '@/components/home/HomeHeroSection';
+import { screen } from '@testing-library/react';
+import { render } from '@/test-utils';
+import messages from '@/messages/en.json';
 
-describe('HeroSection', () => {
+describe('HomeHeroSection', () => {
     beforeEach(() => {
         render(<HomeHeroSection />)
     })
@@ -14,9 +16,9 @@ describe('HeroSection', () => {
     it('should render the primary texts', () => {
         const heading = screen.getByRole('heading', {
             level: 1, 
-            name: "The best place to share food",
+            name: messages.home.hero.title,
         });
-        const paragraph = screen.getByText("Share, discover, and enjoy a world of recipes on our platform! Upload your culinary creations, explore new dishes, and connect with fellow food enthusiasts. Join our community today and elevate your cooking experience!");
+        const paragraph = screen.getByText(messages.home.hero.description);
 
         expect(heading).toBeInTheDocument();
         expect(paragraph).toBeInTheDocument();
