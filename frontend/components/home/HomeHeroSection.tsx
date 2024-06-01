@@ -6,7 +6,7 @@ export default function HomeHeroSection() {
 
     return(
         <section 
-            className="w-main max-w-main mx-auto py-32"
+            className="w-main max-w-main mx-auto py-40"
             data-testid="home-hero-section"
         >
             <h1 className="mb-4 text-5xl font-bold">
