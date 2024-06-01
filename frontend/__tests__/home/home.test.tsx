@@ -15,4 +15,9 @@ describe('Home', () => {
         const section = screen.getByTestId('home-hero-section');
         expect(section).toBeInTheDocument();
     })
+    it('should render the divider section', () => {
+        const divider = screen.getByTestId('home-divider');
+        expect(divider).toBeInTheDocument();
+        expect(divider).toHaveAttribute('src', '/home-divider.svg');
+    })
 })
