@@ -27,6 +27,13 @@ describe('Input', () => {
 
         expect(input).toBeInTheDocument();
     })
+    it('should render the icon element if provided', () => {
+        const { getByTestId } = render(<Input icon={<SendIcon />} />);
+
+        const icon = getByTestId('input-icon');
+
+        expect(icon).toBeInTheDocument();
+    })
     it('should call the onChange function when the value changes', () => {
         const onChange = jest.fn();
 
@@ -52,9 +59,9 @@ describe('Input', () => {
         expect(onSubmit).toHaveBeenCalledWith(text);
     })
     it('should render the submit icon element if provided', () => {
-        const { getByRole } = render(<Input submitIcon={<SendIcon />} />);
+        const { getByTestId } = render(<Input submitIcon={<SendIcon />} />);
 
-        const icon = getByRole('button');
+        const icon = getByTestId('input-submit-icon');
 
         expect(icon).toBeInTheDocument();
     })
@@ -62,9 +69,9 @@ describe('Input', () => {
         const onSubmit = jest.fn();
 
         const text = 'Hello';
-        const { getByRole } = render(<Input submitIcon={<SendIcon />} onSubmit={onSubmit} defaultValue={text} />);
+        const { getByTestId } = render(<Input submitIcon={<SendIcon />} onSubmit={onSubmit} defaultValue={text} />);
 
-        const icon = getByRole('button');
+        const icon = getByTestId('input-submit-icon');
 
         fireEvent.click(icon);
 
@@ -87,6 +94,15 @@ describe('Input', () => {
         const container = getByTestId('input-container');
 
         expect(container).toHaveClass(className);
+    })
+    it('should set iconClassName on the icon element if provided', () => {
+        const className = 'text-primary';
+
+        const { getByTestId } = render(<Input icon={<SendIcon />} iconClassName={className} />);
+
+        const icon = getByTestId('input-icon');
+
+        expect(icon).toHaveClass(className);
     })
     it('should set submitIconClassName on the icon element if provided', () => {
         const className = 'text-primary';
