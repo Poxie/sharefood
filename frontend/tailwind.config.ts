@@ -19,6 +19,8 @@ const config: Config = {
         primary: "#fff",
         secondary: "#F2F2F2",
         tertiary: "#E7E7E7",
+        'text-primary': '#0f172a',
+        'text-muted': '#475569',
       },
       textColor: {
         primary: "#0f172a",

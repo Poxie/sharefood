@@ -37,6 +37,15 @@ describe('Button', () => {
     
         expect(button).toHaveClass('hover:bg-secondary');
     })
+    it('should have the hollow button classes when type is hollow', () => {
+        render(<Button type="hollow">Button text</Button>)
+    
+        const button = screen.getByRole('button');
+    
+        expect(button).toHaveClass('border-[1px]');
+        expect(button).toHaveClass('border-text-muted');
+        expect(button).toHaveClass('hover:bg-tertiary');
+    })
     it('should be an anchor tag if href is provided', () => {
         render(<Button href="https://example.com">Button text</Button>)
     
