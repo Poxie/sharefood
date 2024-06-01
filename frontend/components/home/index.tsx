@@ -1,5 +1,6 @@
 import Image from "next/image";
 import HomeHeroSection from "./HomeHeroSection";
+import Input from "../input";
 
 export default function Home() {
     return(
@@ -13,6 +14,9 @@ export default function Home() {
                 className="w-full"
                 alt=""
             />
+            <div className="w-main max-w-main mx-auto p-5">
+                <Input placeholder="Search for ‘lasagna’" />
+            </div>
         </main>
     )
 }

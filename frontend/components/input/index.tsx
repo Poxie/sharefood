@@ -1,3 +1,4 @@
+"use client";
 import { useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -37,9 +38,12 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
         >
             <input 
                 type="text"
+                className={twMerge(
+                    "w-full p-4 rounded-md border-[1px] border-tertiary",
+                    className,
+                )}
                 onChange={handleChange}
                 placeholder={placeholder}
-                className={className}
                 onKeyDown={onKeyDown}
                 value={defaultValue}
                 ref={ref}
