@@ -9,7 +9,7 @@ export default function Button({ children, className, onClick, href, type='prima
     href?: string;
 }) {
     className = twMerge(
-        "py-3 px-4 rounded-lg transition-colors",
+        "py-3 px-4 text-sm rounded-lg transition-colors",
         type === 'primary' && 'bg-c-primary hover:bg-c-accent text-light font-bold',
         type === 'transparent' && 'text-primary hover:bg-secondary',
         className,
