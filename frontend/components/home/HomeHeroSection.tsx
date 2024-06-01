@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl"
-import HomeHeroOptions from "./HomeHeroOptions";
+import HomeHeroButtons from "./HomeHeroButtons";
 
 export default function HomeHeroSection() {
     const t = useTranslations('home');
@@ -15,7 +15,7 @@ export default function HomeHeroSection() {
             <p className="mb-6 text-lg text-muted lg:w-3/5">
                 {t('hero.description')}
             </p>
-            <HomeHeroOptions />
+            <HomeHeroButtons />
         </section>
     )
 }

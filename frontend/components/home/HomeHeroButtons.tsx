@@ -6,7 +6,7 @@ export default function HomeHeroOptions() {
     
     return(
         <div 
-            data-testid="home-hero-options"
+            data-testid="home-hero-buttons"
             className="flex items-center gap-3"
         >
             <Button 

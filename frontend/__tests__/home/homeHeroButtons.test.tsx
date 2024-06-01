@@ -1,16 +1,16 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@/test-utils';
-import HomeHeroOptions from '@/components/home/HomeHeroOptions';
+import HomeHeroButtons from '@/components/home/HomeHeroButtons';
 import messages from '@/messages/en.json';
 
-describe('HomeHeroOptions', () => {
+describe('HomeHeroButtons', () => {
     beforeEach(() => {
-        render(<HomeHeroOptions />)
+        render(<HomeHeroButtons />)
     })
     
-    it('should render the hero options', () => {
-        const options = screen.getByTestId('home-hero-options');
-        expect(options).toBeInTheDocument();
+    it('should render the hero buttons', () => {
+        const buttons = screen.getByTestId('home-hero-buttons');
+        expect(buttons).toBeInTheDocument();
     })
     it('should render the primary button', () => {
         const button = screen.getByRole('link', { name: messages.home.hero.buttons.primary });
