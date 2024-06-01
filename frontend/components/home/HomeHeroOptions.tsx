@@ -18,6 +18,7 @@ export default function HomeHeroOptions() {
             <Button 
                 href="/share"
                 className="py-4 px-5 text-base"
+                type="hollow"
             >
                 {t('hero.buttons.secondary')}
             </Button>
