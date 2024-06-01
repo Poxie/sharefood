@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient, User } from "@prisma/client";
-import { ID_LENGTH, IMMUTABLE_USER_FIELDS } from "./constants";
+import { ALLOWED_USER_FIELDS, ID_LENGTH, IMMUTABLE_USER_FIELDS } from "./constants";
 import prisma from "@/../client";
 import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import UserNotFoundError from '@/errors/UserNotFoundError';
@@ -77,10 +77,13 @@ export default class Users {
         }
     }
     static async updateUser(id: string, data: Partial<User>) {
-        const invalidProperties = Object.keys(data).filter(prop => IMMUTABLE_USER_FIELDS.includes(prop));
-        if(invalidProperties.length > 0) {
-            let message = invalidProperties.length === 1 ? 'Invalid property: ' : 'Invalid properties: ';
-            message += invalidProperties.join(', ');
+        const immutableProps = Object.keys(data).filter(prop => IMMUTABLE_USER_FIELDS.includes(prop));
+        const unknownProps = Object.keys(data).filter(prop => !ALLOWED_USER_FIELDS.includes(prop));
+        const invalidProps = immutableProps.concat(unknownProps);
+
+        if(invalidProps.length > 0) {
+            let message = invalidProps.length === 1 ? 'Invalid property: ' : 'Invalid properties: ';
+            message += invalidProps.join(', ');
             throw new BadRequestError(message);
         }
 

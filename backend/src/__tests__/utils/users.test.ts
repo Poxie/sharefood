@@ -170,6 +170,13 @@ describe('Users Utils', () => {
                 expect(prismaMock.user.update).not.toHaveBeenCalled();
             })
         })
+        it('should throw an error if invalid properties are passed', () => {
+            const user = mockUser(['password']);
+
+            expect(Users.updateUser(user.id, { unknown: 'field' } as any))
+                .rejects.toBeInstanceOf(BadRequestError);
+            expect(prismaMock.user.update).not.toHaveBeenCalled();
+        })
         it('should throw an error if the user does not exist', async () => {
             prismaMock.user.update.mockRejectedValue({ code: PRISMA_ERROR_CODES.RECORD_NOT_FOUND });
 

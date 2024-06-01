@@ -66,11 +66,6 @@ router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunctio
 
     const data = req.body;
 
-    const invalidProperty = Object.keys(data).find(prop => !ALLOWED_USER_FIELDS.includes(prop));
-    if(invalidProperty) {
-        return next(new BadRequestError(`Invalid property: ${invalidProperty}`));
-    }
-
     try {
         const user = await Users.updateUser(id, data);
         res.send(user);

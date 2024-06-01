@@ -7,6 +7,7 @@ import * as Auth from '@/utils/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
 import UserNotFoundError from "@/errors/UserNotFoundError";
 import UnauthorizedError from "@/errors/UnauthorizedError";
+import BadRequestError from "@/errors/BadRequestError";
 
 const request = supertest(app);
 
@@ -185,6 +186,7 @@ describe('Users Routes', () => {
 
             jest.spyOn(Auth, 'verifyToken').mockReturnValue('1');
             jest.spyOn(Users, 'isAdmin').mockResolvedValue(true);
+            jest.spyOn(Users, 'updateUser').mockRejectedValue(new BadRequestError('Invalid property: unknown'));
 
             const response = await request.patch(`/users/${user.id}`).send({ unknown: 'field' });
 
@@ -198,10 +200,13 @@ describe('Users Routes', () => {
             it('should not update the user', async () => {
                 const user = mockUser(['password']);
 
+                const errorMessage = 'Invalid property: ' + Object.keys(data)[0];
+                jest.spyOn(Users, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
+
                 const response = await request.patch(`/users/${user.id}`).send(data);
 
                 expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
-                expect(response.body).toEqual({ message: 'Invalid property: ' + Object.keys(data)[0] });
+                expect(response.body).toEqual({ message: errorMessage });
             })
         })
         it('should return a 404 status code if the user does not exist', async () => {
