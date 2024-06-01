@@ -18,6 +18,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testEnvironment: 'jsdom',
+  setupFiles: ['<rootDir>/jest.setup.tsx'],
 };
 
 export default config;
