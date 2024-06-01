@@ -18,6 +18,6 @@ describe('Home', () => {
     it('should render the divider section', () => {
         const divider = screen.getByTestId('home-divider');
         expect(divider).toBeInTheDocument();
-        expect(divider).toHaveAttribute('src', '/home-divider.svg');
+        expect(divider).toBeInstanceOf(SVGElement);
     })
 })
