@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavbarTabs from "./NavbarTabs";
 import Button from "../button";
+import NavbarOptions from "./NavbarOptions";
 
 export default function Navbar() {
     return(
@@ -20,19 +21,7 @@ export default function Navbar() {
                 </Link>
                 <NavbarTabs />
             </div>
-            <div className="flex gap-2">
-                <Button 
-                    type="transparent"
-                    className="-my-3"
-                >
-                    Log in
-                </Button>
-                <Button 
-                    className="-my-3"
-                >
-                    Sign up
-                </Button>
-            </div>
+            <NavbarOptions />
         </nav>
     )
 }

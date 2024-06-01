@@ -31,4 +31,8 @@ describe('Navbar', () => {
         const tabs = screen.getByTestId('navbar-tabs');
         expect(tabs).toBeInTheDocument();
     })
+    it('should render the navbar options', () => {
+        const options = screen.getByTestId('navbar-options');
+        expect(options).toBeInTheDocument();
+    })
 })
