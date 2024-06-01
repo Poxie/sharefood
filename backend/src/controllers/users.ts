@@ -66,6 +66,11 @@ router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunctio
 
     const data = req.body;
 
+    // If logged in user is not an admin, they cannot change the isAdmin field
+    if(data.isAdmin && !isAdmin) {
+        return next(new UnauthorizedError());
+    }
+
     try {
         const user = await Users.updateUser(id, data);
         res.send(user);

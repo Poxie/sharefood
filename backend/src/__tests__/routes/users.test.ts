@@ -169,6 +169,18 @@ describe('Users Routes', () => {
             expect(response.status).toBe(200);
             expect(response.body).toEqual(updatedUser);
         });
+        it('should return a 401 status code if isAdmin is passed and the logged in user is not an admin', async () => {
+            const user = mockUser(['password']);
+            const updatedUser = { ...user, isAdmin: true };
+
+            jest.spyOn(Auth, 'verifyToken').mockReturnValue('1');
+            jest.spyOn(Users, 'isAdmin').mockResolvedValue(false);
+
+            const response = await request.patch(`/users/${user.id}`).send({ isAdmin: updatedUser.isAdmin });
+
+            expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(response.body).toEqual({ message: new UnauthorizedError().message });
+        })
         it('should return a 401 status code if the user is not the owner or an admin', async () => {
             const user = mockUser(['password']);
             const updatedUser = { ...user, username: 'newUsername' };
