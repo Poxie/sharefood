@@ -17,4 +17,24 @@ describe('SignupModal', () => {
         expect(header).toBeInTheDocument();
         expect(header).toHaveTextContent(messages.modal.signup.title);
     })
+    it('should render the signup form', () => {
+        const form = screen.getByTestId('signup-form');
+        expect(form).toBeInTheDocument();
+    })
+    it('should render the username input', () => {
+        const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
+        expect(input).toBeInTheDocument();
+    })
+    it('should render the password input', () => {
+        const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
+        expect(input).toBeInTheDocument();
+    })
+    it('should render the confirm password input', () => {
+        const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
+        expect(input).toBeInTheDocument();
+    })
+    it('should render the submit button', () => {
+        const button = screen.getByRole('button', { name: messages.modal.signup.submit });
+        expect(button).toBeInTheDocument();
+    })
 })

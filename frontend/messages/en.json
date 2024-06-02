@@ -16,7 +16,13 @@
     "modal": {
         "close": "Close modal",
         "signup": {
-            "title": "Sign up to ShareFood"
+            "title": "Sign up to ShareFood",
+            "submit": "Sign up",
+            "placeholder": {
+                "username": "Username",
+                "password": "Password",
+                "confirmPassword": "Confirm password"
+            }
         }
     }
 }
