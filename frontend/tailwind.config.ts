@@ -16,6 +16,8 @@ const config: Config = {
         tertiary: "#E7E7E7",
         "c-primary": "#FF2264",
         "c-accent": "#E32961",
+        success: '#00C853',
+        danger: '#FF1744',
       },
       borderColor: {
         primary: "#fff",
@@ -23,6 +25,8 @@ const config: Config = {
         tertiary: "#E7E7E7",
         'text-primary': '#0f172a',
         'text-muted': '#475569',
+        success: '#00C853',
+        danger: '#FF1744',
       },
       textColor: {
         primary: "#0f172a",
