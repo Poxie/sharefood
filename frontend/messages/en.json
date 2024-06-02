@@ -7,6 +7,10 @@
                 "primary": "Explore recipes",
                 "secondary": "Share your recipes"
             }
+        },
+        "search": {
+            "title": "Search for a recipe",
+            "placeholder": "Search for 'lasagna'"
         }
     }
 }
