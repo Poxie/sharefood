@@ -1,4 +1,6 @@
+"use client";
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ModalContext = React.createContext<null | {
     setModal: (modal: React.ReactNode) => void;
@@ -32,13 +34,19 @@ export default function ModalProvider({ children }: {
                 className="fixed top-0 left-0 w-full h-full pointer-events-none"
             >
                 {modal}
-                {modal && (
-                    <div 
-                        data-testid="modal-backdrop"
-                        className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50"
-                        onClick={closeModal}
-                    />
-                )}
+                <AnimatePresence>
+                    {modal && (
+                        <motion.div 
+                            data-testid="modal-backdrop"
+                            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 pointer-events-auto"
+                            onClick={closeModal}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ bounce: false, duration: 0.2 }}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         </ModalContext.Provider>
     )
