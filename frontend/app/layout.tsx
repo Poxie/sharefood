@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Navbar from "@/components/navbar";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import ModalProvider from "@/contexts/modal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,8 +26,10 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
-          <Navbar />
-          {children}
+          <ModalProvider>
+            <Navbar />
+            {children}
+          </ModalProvider>
         </NextIntlClientProvider>
       </body>
     </html>
