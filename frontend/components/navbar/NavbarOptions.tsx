@@ -1,3 +1,4 @@
+"use client";
 import { useModal } from "@/contexts/modal";
 import Button from "../button";
 import SignupModal from "@/modals/sign-up";
