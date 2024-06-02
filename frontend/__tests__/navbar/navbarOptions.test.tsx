@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test-utils';
 import NavbarOptions from '@/components/navbar/NavbarOptions';
 import * as ModalContext from '@/contexts/modal';
 import SignupModal from '@/modals/sign-up';

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen } from "@testing-library/react";
+import { render, screen } from '@/test-utils';
 import NavbarTabs, { NAVBAR_TABS } from '@/components/navbar/NavbarTabs';
 
 jest.mock('next/navigation', () => ({

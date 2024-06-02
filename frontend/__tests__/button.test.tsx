@@ -1,6 +1,6 @@
 import Button from '@/components/button'
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '@/test-utils'
  
 describe('Button', () => {
     it('renders a button with the correct text', () => {

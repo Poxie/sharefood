@@ -1,7 +1,7 @@
+import '@testing-library/jest-dom'
 import SendIcon from '@/assets/icons/SendIcon';
 import Input from '@/components/input'
-import { fireEvent, getByTestId, render } from '@/test-utils';
-import '@testing-library/jest-dom'
+import { fireEvent, render } from '@/test-utils';
 
 describe('Input', () => {
     it('should render an input element', () => {

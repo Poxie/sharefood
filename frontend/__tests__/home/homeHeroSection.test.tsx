@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import HomeHeroSection from '@/components/home/HomeHeroSection';
-import { screen } from '@testing-library/react';
-import { render } from '@/test-utils';
+import { screen, render } from '@/test-utils';
 import messages from '@/messages/en.json';
 
 describe('HomeHeroSection', () => {
