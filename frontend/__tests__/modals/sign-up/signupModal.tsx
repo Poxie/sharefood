@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import SignupModal from '@/modals/sign-up';
-import { render, screen } from '@/test-utils';
+import { fireEvent, render, screen } from '@/test-utils';
 import messages from '@/messages/en.json';
 
 describe('SignupModal', () => {
@@ -36,5 +36,29 @@ describe('SignupModal', () => {
     it('should render the submit button', () => {
         const button = screen.getByRole('button', { name: messages.modal.signup.submit });
         expect(button).toBeInTheDocument();
+    })
+    it('should should show an error if the form is submitted with empty fields', () => {
+        const button = screen.getByRole('button', { name: messages.modal.signup.submit });
+        fireEvent.click(button);
+
+        const error = screen.getByText(messages.error.emptyFields);
+
+        expect(error).toBeInTheDocument();
+    })
+    it('should show an error if the passwords do not match', () => {
+        const username = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
+        const password = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
+        const confirmPassword = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
+
+        fireEvent.change(username, { target: { value: 'test' } });
+        fireEvent.change(password, { target: { value: 'password' } });
+        fireEvent.change(confirmPassword, { target: { value: 'password123' } });
+
+        const button = screen.getByRole('button', { name: messages.modal.signup.submit });
+        fireEvent.click(button);
+
+        const error = screen.getByText(messages.error.passwordsDontMatch);
+
+        expect(error).toBeInTheDocument();
     })
 })

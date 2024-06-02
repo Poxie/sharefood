@@ -24,5 +24,9 @@
                 "confirmPassword": "Confirm password"
             }
         }
+    },
+    "error": {
+        "emptyFields": "Please fill in all fields.",
+        "passwordsDontMatch": "Passwords don't match."
     }
 }
