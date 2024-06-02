@@ -12,5 +12,11 @@
             "title": "Search for a recipe",
             "placeholder": "Search for 'lasagna'"
         }
+    },
+    "modal": {
+        "close": "Close modal",
+        "signup": {
+            "title": "Sign up to ShareFood"
+        }
     }
 }

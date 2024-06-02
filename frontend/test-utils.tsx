@@ -2,11 +2,14 @@ import React, { ReactElement } from 'react';
 import { render } from '@testing-library/react';
 import messages from './messages/en.json';
 import { NextIntlClientProvider } from 'next-intl';
+import ModalProvider from './contexts/modal';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
     return(
         <NextIntlClientProvider messages={messages} locale='en'>
-            {children}
+            <ModalProvider>
+                {children}
+            </ModalProvider>
         </NextIntlClientProvider>
     )
 }
