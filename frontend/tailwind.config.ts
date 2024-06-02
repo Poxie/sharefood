@@ -32,6 +32,7 @@ const config: Config = {
       },
       width: {
         main: '1100px',
+        modal: '420px',
       },
       maxWidth: {
         main: '90%',
