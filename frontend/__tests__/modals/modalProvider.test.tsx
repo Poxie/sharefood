@@ -42,6 +42,27 @@ describe('ModalProvider', () => {
         const modal = screen.getByTestId('modal');
         expect(modal).toBeInTheDocument();
     })
+    it('should render a backdrop when the modal is open', () => {
+        render(<CustomTest />)
+
+        const openButton = screen.getByText('Open Modal');
+        fireEvent.click(openButton);
+
+        const backdrop = screen.getByTestId('modal-backdrop');
+        expect(backdrop).toBeInTheDocument();
+    })
+    it('should close the modal when click on backdrop', () => {
+        render(<CustomTest />)
+
+        const openButton = screen.getByText('Open Modal');
+        fireEvent.click(openButton);
+
+        const backdrop = screen.getByTestId('modal-backdrop');
+        fireEvent.click(backdrop);
+
+        const modal = screen.queryByTestId('modal');
+        expect(modal).not.toBeInTheDocument();
+    })
     it('should close the modal when closeModal function is called', () => {
         render(<CustomTest />)
 

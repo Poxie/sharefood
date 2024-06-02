@@ -32,6 +32,13 @@ export default function ModalProvider({ children }: {
                 className="fixed top-0 left-0 w-full h-full pointer-events-none"
             >
                 {modal}
+                {modal && (
+                    <div 
+                        data-testid="modal-backdrop"
+                        className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50"
+                        onClick={closeModal}
+                    />
+                )}
             </div>
         </ModalContext.Provider>
     )
