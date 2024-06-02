@@ -33,9 +33,11 @@ export default function ModalProvider({ children }: {
                 data-testid="modal-container"
                 className="fixed top-0 left-0 w-full h-full pointer-events-none"
             >
-                <AnimatePresence>
-                    {modal}
-                </AnimatePresence>
+                {process.env.NODE_ENV === 'test' ? modal : (
+                    <AnimatePresence>
+                        {modal}
+                    </AnimatePresence>
+                )}
                 <AnimatePresence>
                     {modal && (
                         <motion.div 
