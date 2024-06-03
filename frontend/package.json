@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.40.0",
     "framer-motion": "^11.2.10",
     "next": "14.2.3",
     "next-intl": "^3.14.1",
@@ -22,6 +23,7 @@
     "@babel/preset-env": "^7.24.6",
     "@babel/preset-react": "^7.24.6",
     "@babel/preset-typescript": "^7.24.6",
+    "@tanstack/eslint-plugin-query": "^5.35.6",
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.7",
     "@types/jest": "^29.5.12",
