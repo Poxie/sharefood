@@ -4,6 +4,7 @@ declare global {
             PORT: string;
             BCRYPT_SALT_ROUNDS: string;
             JWT_PRIVATE_KEY: string;
+            CLIENT_URL: string;
         }
     }
     namespace Express {
