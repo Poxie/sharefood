@@ -1,5 +1,10 @@
-import { UserCreateResponse } from "@/types";
+import { User, UserCreateResponse } from "@/types";
 import fetchFromAPI from "..";
+
+export async function getMyUser() {
+    const user = await fetchFromAPI<User>('/users/me')
+    return user;
+}
 
 export async function createUser({ username, password }: {
     username: string;

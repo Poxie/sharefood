@@ -1,4 +1,4 @@
-export default async function fetchFromAPI<T>(url: string, options: RequestInit) {
+export default async function fetchFromAPI<T>(url: string, options: RequestInit = {}) {
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         headers: {
             'Content-Type': 'application/json',

@@ -24,16 +24,13 @@ describe('fetchFromAPI', () => {
         spy.mockRestore();
     })
 
-    it('should fetch data from the API using GET request', async () => {
+    it('should fetch data from the API using GET request by default', async () => {
         const path = '/test';
-        const response = await fetchFromAPI(path, {
-            method: 'GET',
-        });
+        const response = await fetchFromAPI(path);
 
         expect(response).toEqual(data);
         expect(spy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
             ...defaultOptions,
-            method: 'GET',
         });
     })
     it('should throw an error if the response is not ok', async () => {
