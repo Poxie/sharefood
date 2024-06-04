@@ -4,6 +4,7 @@ import { fireEvent, render, renderHook, screen, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import * as useCreateUser from '@/hooks/users/useCreateUser';
 import mockUser from '@/test-constants';
+import { UserCreateResponse } from '@/types';
 
 jest.mock('@/hooks/users/useCreateUser', () => jest.fn().mockReturnValue({
     createUser: jest.fn(),
@@ -77,7 +78,14 @@ describe('SignupModal', () => {
     })
 
     describe('Mutation', () => {
-        const mockCreateUserValue = {
+        const mockCreateUserValue: {
+            createUser: jest.Func;
+            isPending: boolean;
+            isError: boolean;
+            data: undefined | UserCreateResponse;
+            isSuccess: boolean;
+            error: null | Error;
+        } = {
             createUser: jest.fn(),
             isPending: false,
             isError: false,
@@ -130,6 +138,16 @@ describe('SignupModal', () => {
             const button = screen.getByRole('button', { name: messages.modal.signup.submitting });
     
             expect(button).toBeDisabled();
+        })
+        it('should show an error if the form submission fails', () => {
+            const errorMessage = 'An error occurred';
+            mockCreateUser({ isError: true, error: new Error(errorMessage) });
+    
+            render(<SignupModal />);
+    
+            const error = screen.getByText(errorMessage);
+    
+            expect(error).toBeInTheDocument();
         })
     })
 })

@@ -10,7 +10,7 @@ import useCreateUser from "@/hooks/users/useCreateUser";
 export default function SignupModal() {
     const t = useTranslations();
 
-    const { isPending, createUser } = useCreateUser();
+    const { isPending, createUser, error } = useCreateUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -77,6 +77,12 @@ export default function SignupModal() {
                 />
                 {feedback && (
                     <Feedback {...feedback} />
+                )}
+                {error && (
+                    <Feedback 
+                        message={error.message}
+                        type="danger"
+                    />
                 )}
                 <Button 
                     className="mt-1 py-4"
