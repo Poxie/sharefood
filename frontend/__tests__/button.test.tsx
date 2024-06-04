@@ -53,4 +53,11 @@ describe('Button', () => {
     
         expect(button).toHaveAttribute('href', 'https://example.com');
     })
+    it('should be disabled if disabled is true', () => {
+        render(<Button disabled>Button text</Button>)
+    
+        const button = screen.getByRole('button');
+    
+        expect(button).toBeDisabled();
+    })
 })

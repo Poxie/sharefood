@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 
-export default function Button({ children, className, onClick, href, type='primary' }: {
+export default function Button({ children, className, onClick, href, disabled, type='primary' }: {
     children?: React.ReactNode;
     className?: string;
     type?: "primary" | "transparent" | 'hollow';
     onClick?: () => void;
     href?: string;
+    disabled?: boolean;
 }) {
     className = twMerge(
         "py-3 px-4 text-sm rounded-lg transition-colors",
@@ -19,6 +20,7 @@ export default function Button({ children, className, onClick, href, type='prima
     const props = {
         onClick,
         className,
+        disabled,
     }
 
     if(href) {
