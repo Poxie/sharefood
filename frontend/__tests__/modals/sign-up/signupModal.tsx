@@ -77,15 +77,23 @@ describe('SignupModal', () => {
     })
 
     describe('Mutation', () => {
+        const mockCreateUserValue = {
+            createUser: jest.fn(),
+            isPending: false,
+            isError: false,
+            data: undefined,
+            isSuccess: false,
+        }
+        const mockCreateUser = (overrideValue: Partial<typeof mockCreateUserValue>) => {
+            jest.spyOn(useCreateUser, 'default').mockReturnValue({
+                ...mockCreateUserValue,
+                ...overrideValue,
+            });
+        }
+
         it('should call the mutate function when the form is submitted', async () => {
             const createUserFunction = jest.fn();
-            jest.spyOn(useCreateUser, 'default').mockReturnValue(({
-                createUser: createUserFunction,
-                isPending: false,
-                isError: false,
-                data: undefined,
-                isSuccess: true,
-            }));
+            mockCreateUser({ createUser: createUserFunction });
     
             render(<SignupModal />);
             
@@ -105,19 +113,22 @@ describe('SignupModal', () => {
             expect(createUserFunction).toHaveBeenCalledWith({ username: usernameValue, password: passwordValue });
         })
         it('should show loading state when the form is submitted', () => {
-            jest.spyOn(useCreateUser, 'default').mockReturnValue(({
-                createUser: jest.fn(),
-                isPending: true,
-                isError: false,
-                data: undefined,
-                isSuccess: false,
-            }));
+            mockCreateUser({ isPending: true });
     
             render(<SignupModal />);
     
             const loading = screen.getByText(messages.modal.signup.submitting);
     
             expect(loading).toBeInTheDocument();
+        })
+        it('should have a disabled submit button when the form is submitting', () => {
+            mockCreateUser({ isPending: true });
+    
+            render(<SignupModal />);
+    
+            const button = screen.getByRole('button', { name: messages.modal.signup.submitting });
+    
+            expect(button).toBeDisabled();
         })
     })
 })

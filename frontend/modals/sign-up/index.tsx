@@ -78,7 +78,10 @@ export default function SignupModal() {
                 {feedback && (
                     <Feedback {...feedback} />
                 )}
-                <Button className="mt-1 py-4">
+                <Button 
+                    className="mt-1 py-4"
+                    disabled={isPending}
+                >
                     {!isPending ? (
                         t('modal.signup.submit')
                     ) : (
