@@ -50,4 +50,23 @@ describe('useCreateUser', () => {
 
         expect(result.current.data).toEqual(data);
     })
+    it('handles errors', async () => {
+        const error = new Error('An error occurred');
+        jest.spyOn(UserAPI, 'createUser').mockRejectedValue(error);
+
+        const { result } = renderHook(() => useCreateUser(), { wrapper });
+
+        await act(async () => {
+            result.current.createUser({ 
+                username: 'test',
+                password: 'password',
+            })
+        })
+
+        await waitFor(() => {
+            return result.current.isError;
+        })
+
+        expect(result.current.error).toEqual(error);
+    })
 })

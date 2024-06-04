@@ -83,6 +83,7 @@ describe('SignupModal', () => {
             isError: false,
             data: undefined,
             isSuccess: false,
+            error: null,
         }
         const mockCreateUser = (overrideValue: Partial<typeof mockCreateUserValue>) => {
             jest.spyOn(useCreateUser, 'default').mockReturnValue({
