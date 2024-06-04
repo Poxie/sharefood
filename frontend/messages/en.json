@@ -18,6 +18,7 @@
         "signup": {
             "title": "Sign up to ShareFood",
             "submit": "Sign up",
+            "submitting": "Signing up...",
             "placeholder": {
                 "username": "Username",
                 "password": "Password",

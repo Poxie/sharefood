@@ -5,9 +5,12 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import { useState } from "react";
 import Feedback, { FeedbackProps } from "../../components/feedback";
+import useCreateUser from "@/hooks/users/useCreateUser";
 
 export default function SignupModal() {
     const t = useTranslations();
+
+    const { isPending, createUser } = useCreateUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -27,20 +30,24 @@ export default function SignupModal() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if(!info.username || !info.password || !info.confirmPassword) {
+        const { username, password, confirmPassword } = info;
+
+        if(!username || !password || !confirmPassword) {
             setFeedback({
                 message: t('error.emptyFields'),
                 type: 'danger',
             })
             return;
         }
-        if(info.password !== info.confirmPassword) {
+        if(password !== confirmPassword) {
             setFeedback({
                 message: t('error.passwordsDontMatch'),
                 type: 'danger',
             })
             return;
         }
+
+        createUser({ username, password });
     }
     
     return(
@@ -72,7 +79,11 @@ export default function SignupModal() {
                     <Feedback {...feedback} />
                 )}
                 <Button className="mt-1 py-4">
-                    {t('modal.signup.submit')}
+                    {!isPending ? (
+                        t('modal.signup.submit')
+                    ) : (
+                        t('modal.signup.submitting')
+                    )}
                 </Button>
             </form>
         </Modal>
