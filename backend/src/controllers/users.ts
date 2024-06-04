@@ -18,6 +18,17 @@ router.get('/', async (req: Request, res: Response) => {
     res.send(users);
 });
 
+router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = res.locals;
+    
+    try {
+        const user = await Users.getUserById(userId);
+        res.send(user);
+    } catch(error) {
+        next(error);
+    }
+});
+
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const { username, password } = req.body;
 
