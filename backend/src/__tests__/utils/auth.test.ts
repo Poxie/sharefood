@@ -18,20 +18,19 @@ describe('Auth Utils', () => {
     describe('verifyToken', () => {
         it('should verify a token and return the userId', () => {
             const userId = '1';
-            const token = 'actualworkingtoken';
+            const cookies = {
+                accessToken: 'workingtoken',
+            }
 
             const spy = jest.spyOn(jwt, 'verify');
             spy.mockImplementation(() => ({ userId }));
 
-            const bearerToken = `Bearer ${token}`;
-            const result = verifyToken(bearerToken);
+            const result = verifyToken(cookies);
 
             expect(result).toBe(userId);
-            expect(spy).toHaveBeenCalledWith(token, process.env.JWT_PRIVATE_KEY);
+            expect(spy).toHaveBeenCalledWith(cookies.accessToken, process.env.JWT_PRIVATE_KEY);
         })
         it('should throw an error if the token is missing', () => {
-            const spy = jest.spyOn(jwt, 'verify');
-
             try {
                 verifyToken(undefined);
             } catch(error) {
@@ -39,12 +38,12 @@ describe('Auth Utils', () => {
             }
         })
         it('should throw an error if the token is invalid', () => {
-            const spy = jest.spyOn(jwt, 'verify');
-
-            const bearerToken = 'Bearer invalidtoken';
+            const cookies = {
+                accessToken: 'invalidtoken',
+            }
 
             try {
-                verifyToken(bearerToken);
+                verifyToken(cookies);
             } catch(error) {
                 expect(error).toEqual(new InvalidAccessTokenError('Invalid access token'));
             }

@@ -7,7 +7,7 @@ import { signToken, verifyToken } from '@/utils/auth';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import auth from '@/middleware/auth';
-import { ALLOWED_USER_FIELDS } from '@/utils/constants';
+import { ALLOWED_USER_FIELDS, COOKIE_AGE } from '@/utils/constants';
 import BadRequestError from '@/errors/BadRequestError';
 
 const prisma = new PrismaClient();
@@ -31,6 +31,9 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         });
 
         const accessToken = signToken(user.id);
+        res.cookie('accessToken', accessToken, {
+            maxAge: COOKIE_AGE,
+        });
 
         return res.send({
             user,

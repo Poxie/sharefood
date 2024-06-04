@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 
 export default async function auth(req: Request, res: Response, next: NextFunction) {
     try {
-        const userId = verifyToken(req.headers.authorization);
+        const userId = verifyToken(req.cookies);
 
         const isAdmin = await Users.isAdmin(userId);
 
