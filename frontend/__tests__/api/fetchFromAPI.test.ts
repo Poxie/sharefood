@@ -4,6 +4,12 @@ global.fetch = jest.fn();
 
 describe('fetchFromAPI', () => {
     const data = { message: 'Hello, world!' };
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+    }
 
     let spy: jest.SpyInstance;
     beforeEach(() => {
@@ -26,10 +32,8 @@ describe('fetchFromAPI', () => {
 
         expect(response).toEqual(data);
         expect(spy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+            ...defaultOptions,
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
         });
     })
     it('should throw an error if the response is not ok', async () => {
@@ -66,10 +70,8 @@ describe('fetchFromAPI', () => {
 
             expect(response).toEqual(data);
             expect(spy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+                ...defaultOptions,
                 method: options.method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             });
         })
     })
@@ -87,10 +89,8 @@ describe('fetchFromAPI', () => {
 
             expect(response).toEqual(data);
             expect(spy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+                ...defaultOptions,
                 method: options.method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(data),
             });
         })

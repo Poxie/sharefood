@@ -3,6 +3,7 @@ export default async function fetchFromAPI<T>(url: string, options: RequestInit)
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         ...options,
     })
         .then(async res => {
