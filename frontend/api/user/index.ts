@@ -1,7 +1,7 @@
 import { User, UserCreateResponse } from "@/types";
 import fetchFromAPI from "..";
 
-export async function getMyUser() {
+export async function getCurrentUser() {
     const user = await fetchFromAPI<User>('/users/me')
     return user;
 }

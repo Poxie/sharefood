@@ -1,14 +1,14 @@
 import * as fetchAPI from "@/api";
-import { getMyUser } from "@/api/user"
+import { getCurrentUser } from "@/api/user"
 import mockUser from "@/test-constants";
 
-describe('getMyUser', () => {
+describe('getCurrentUser', () => {
     it('should get the user', async () => {
         const mockedUser = mockUser();
 
         const spy = jest.spyOn(fetchAPI, 'default').mockResolvedValue(mockedUser);
 
-        const user = await getMyUser();
+        const user = await getCurrentUser();
 
         expect(user).toEqual(mockedUser);
     })
@@ -18,7 +18,7 @@ describe('getMyUser', () => {
 
         let error;
         try {
-            await getMyUser();
+            await getCurrentUser();
         } catch(err) {
             error = err;
         }
