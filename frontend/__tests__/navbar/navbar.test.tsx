@@ -1,14 +1,30 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@/test-utils'
 import Navbar from "@/components/navbar"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 jest.mock('next/navigation', () => ({
     usePathname: jest.fn(() => '/'),
 }))
 
+const queryClient = new QueryClient();
+const Wrapper = ({ children }: {
+    children: React.ReactNode;
+}) => {
+    return(
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    )
+}
+
 describe('Navbar', () => {
     beforeEach(() => {
-        render(<Navbar />);
+        render(
+            <Wrapper>
+                <Navbar />
+            </Wrapper>
+        );
     })
 
     it('should render the navbar', () => {
