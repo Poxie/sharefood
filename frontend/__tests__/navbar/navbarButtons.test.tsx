@@ -1,10 +1,10 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@/test-utils';
-import NavbarOptions from '@/components/navbar/NavbarOptions';
+import NavbarButtons from '@/components/navbar/NavbarButtons';
 import * as ModalContext from '@/contexts/modal';
 import SignupModal from '@/modals/sign-up';
 
-describe('NavbarOptions', () => {
+describe('NavbarButtons', () => {
     const closeMock = jest.fn();
     const setModalMock = jest.fn();
     jest.spyOn(ModalContext, 'useModal')
@@ -14,7 +14,7 @@ describe('NavbarOptions', () => {
         }));
         
     beforeEach(() => {
-        render(<NavbarOptions />);
+        render(<NavbarButtons />);
     })
 
     it('should render the log in button', () => {
