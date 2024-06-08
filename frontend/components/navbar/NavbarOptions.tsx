@@ -9,8 +9,9 @@ export default function NavbarOptions() {
 
     const { data, isPending } = useCurrentUser();
 
+    console.log(data, isPending);
     return(
-        <div className="flex gap-2" data-testid="navbar-options">
+        <div data-testid="navbar-options">
             {!isPending && !data && (
                 <NavbarButtons />
             )}

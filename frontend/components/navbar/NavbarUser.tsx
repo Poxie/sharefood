@@ -4,7 +4,7 @@ export default function NavbarUser({ user }: {
     user: User;
 }) {
     return(
-        <span>
+        <span data-testid="navbar-user">
             {user.username}
         </span>
     )
