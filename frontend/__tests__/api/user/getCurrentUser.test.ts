@@ -14,14 +14,9 @@ describe('getCurrentUser', () => {
     })
     it('should throw an error if the user is not logged in', async () => {
         const expectedError = new Error('notloggedinerror');
+        
         jest.spyOn(fetchAPI, 'default').mockRejectedValue(expectedError);
 
-        let error;
-        try {
-            await getCurrentUser();
-        } catch(err) {
-            error = err;
-        }
-        expect(error).toEqual(expectedError);
+        await expect(getCurrentUser()).rejects.toThrow(expectedError);
     })
 })
