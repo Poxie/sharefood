@@ -4,10 +4,7 @@ import mockUser from '@/test-constants';
 import { render, screen, waitFor } from '@/test-utils'
 import { QueryClient, QueryClientProvider, UseQueryResult } from '@tanstack/react-query';
 import { User } from '@/types';
-import useCurrentUser from '@/hooks/users/useCurrentUser';
-
-jest.mock('@/hooks/users/useCurrentUser');
-const MockedUseCurrentUser = jest.mocked(useCurrentUser);
+import * as useCurrentUser from '@/hooks/users/useCurrentUser';
 
 describe('NavbarOptions', () => {
     const renderNavbarOptions = () => {
@@ -27,20 +24,27 @@ describe('NavbarOptions', () => {
         data?: User | null;
         isPending?: boolean;
     }) => {
-        MockedUseCurrentUser.mockReturnValue({
+        jest.spyOn(useCurrentUser, 'default').mockReturnValue({
             data,
-            isPending
+            isPending,
         } as UseQueryResult<User>)
     }
 
-    it('should render the NavbarOptions component', () => {
+    it('should render tHe NavbarOptions component', () => {
         mockUseCurrentUser({});
         renderNavbarOptions();
 
         expect(screen.getByTestId('navbar-options')).toBeInTheDocument();
     })
+
     it('should render the NavbarButtons if the user is not logged in', () => {
         mockUseCurrentUser({ data: undefined });
+        renderNavbarOptions();
+
+        expect(screen.getByTestId('navbar-buttons')).toBeInTheDocument();
+    })
+    it('should render the NavbarButtons if the request for logged in user is pending', () => {
+        mockUseCurrentUser({ isPending: true });
         renderNavbarOptions();
 
         expect(screen.getByTestId('navbar-buttons')).toBeInTheDocument();

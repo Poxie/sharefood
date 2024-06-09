@@ -9,10 +9,9 @@ export default function NavbarOptions() {
 
     const { data, isPending } = useCurrentUser();
 
-    console.log(data, isPending);
     return(
         <div data-testid="navbar-options">
-            {!isPending && !data && (
+            {!data && (
                 <NavbarButtons />
             )}
             {!isPending && data && (
