@@ -1,8 +1,8 @@
 import { User, UserCreateResponse } from "@/types";
-import fetchFromAPI from "..";
+import fetchFromAPI, { FetchOptions } from "..";
 
-export async function getCurrentUser() {
-    const user = await fetchFromAPI<User>('/users/me')
+export async function getCurrentUser(options: FetchOptions = {}) {
+    const user = await fetchFromAPI<User>('/users/me', options);
     return user;
 }
 
