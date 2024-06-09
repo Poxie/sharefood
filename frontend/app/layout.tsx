@@ -5,6 +5,9 @@ import Navbar from "@/components/navbar";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import Providers from "@/contexts";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+import { getCurrentUser } from "@/api/user";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,13 +25,26 @@ export default async function RootLayout({
 
   const messages = await getMessages();
 
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryFn: async () => getCurrentUser({
+      headers: {
+        Cookie: cookies().toString(),
+      }
+    }),
+    queryKey: ['current-user'],
+  })
+
   return (
     <html lang={locale}>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <Navbar />
-            {children}
+            <HydrationBoundary state={dehydrate(queryClient)}>
+              <Navbar />
+              {children}
+            </HydrationBoundary>
           </Providers>
         </NextIntlClientProvider>
       </body>
