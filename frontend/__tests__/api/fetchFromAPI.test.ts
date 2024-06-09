@@ -1,6 +1,5 @@
 import fetchFromAPI from "@/api";
-
-global.fetch = jest.fn();
+import nock from 'nock';
 
 describe('fetchFromAPI', () => {
     const data = { message: 'Hello, world!' };
@@ -13,19 +12,20 @@ describe('fetchFromAPI', () => {
 
     let spy: jest.SpyInstance;
     beforeEach(() => {
-        spy = jest.spyOn(global, 'fetch').mockImplementation(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve(data),
-            } as any)
-        );
+        spy = jest.spyOn(global, 'fetch');
     })
     afterEach(() => {
+        nock.cleanAll();
         spy.mockRestore();
     })
 
     it('should fetch data from the API using GET request by default', async () => {
-        const path = '/test';
+        const path = '/get-request';
+
+        nock(process.env.NEXT_PUBLIC_API_URL)
+            .get(path)
+            .reply(200, data);
+
         const response = await fetchFromAPI(path);
 
         expect(response).toEqual(data);
@@ -34,33 +34,50 @@ describe('fetchFromAPI', () => {
         });
     })
     it('should throw an error if the response is not ok', async () => {
+        const path = '/error-response';
         const errorMessage = 'Something went wrong';
-        jest.spyOn(global, 'fetch').mockImplementation(() =>
-            Promise.resolve({
-                ok: false,
-                json: () => Promise.resolve({ message: errorMessage }),
-            } as any)
-        );
+        
+        nock(process.env.NEXT_PUBLIC_API_URL)
+            .get('/test')
+            .reply(400, { message: errorMessage });
 
-        let error;
-        try {
-            await fetchFromAPI('/test', {
-                method: 'GET',
-            });
-        } catch(err) {
-            error = err;
-        }
-
-        expect(error).toEqual(new Error(errorMessage));
+        await expect(fetchFromAPI(path)).rejects.toThrow(new Error(errorMessage));
     })
     describe.each([
-        { method: 'PUT' },
-        { method: 'POST' },
-        { method: 'PATCH' },
-        { method: 'DELETE' },
-    ])('should send requests with different HTTP methods', (options) => {
+        { headers: { 'header': 'headervalue' } },
+        { referrerPolicy: 'no-referrer' },
+        { priority: 'high' },
+        { mode: 'cors' },
+    ] as const)('should add options to fetch request if provided', (options) => {
+        it('should add different fetch options', async () => {
+            const path = '/custom-options';
+
+            nock(process.env.NEXT_PUBLIC_API_URL)
+                .get(path)
+                .reply(200, data);
+
+            const response = await fetchFromAPI(path, options);
+
+            expect(response).toEqual(data);
+            expect(spy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+                ...defaultOptions,
+                ...options,
+            });
+        })
+    })
+    describe.each([
+        { method: 'put' },
+        { method: 'post' },
+        { method: 'patch' },
+        { method: 'delete' },
+    ] as const)('should send requests with different HTTP methods', (options) => {
         it(`should make a ${options.method} request`, async () => {
-            const path = '/test';
+            const path = '/method-requests';
+
+            nock(process.env.NEXT_PUBLIC_API_URL)
+                [options.method](path)
+                .reply(200, data);
+
             const response = await fetchFromAPI(path, {
                 method: options.method,
             });
@@ -73,12 +90,17 @@ describe('fetchFromAPI', () => {
         })
     })
     describe.each([
-        { method: 'PUT' },
-        { method: 'POST' },
-        { method: 'PATCH' },
-    ])('should send body with update requests', (options) => {
+        { method: 'put' },
+        { method: 'post' },
+        { method: 'patch' },
+    ] as const)('should send body with update requests', (options) => {
         it(`${options.method} request`, async () => {
-            const path = '/test';
+            const path = '/provide-body';
+
+            nock(process.env.NEXT_PUBLIC_API_URL)
+                [options.method](path)
+                .reply(200, data);
+
             const response = await fetchFromAPI(path, {
                 method: options.method,
                 body: JSON.stringify(data),

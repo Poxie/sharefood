@@ -1,7 +1,15 @@
-export default async function fetchFromAPI<T>(url: string, options: RequestInit = {}) {
+export type FetchOptions = RequestInit;
+export type FetchHeaders = Record<string, string>;
+export type FetchArguments = Partial<{
+    options: FetchOptions;
+    headers: FetchHeaders;
+}>
+
+export default async function fetchFromAPI<T>(url: string, options: FetchOptions = {}) {
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         headers: {
             'Content-Type': 'application/json',
+            ...options.headers,
         },
         credentials: 'include',
         ...options,
