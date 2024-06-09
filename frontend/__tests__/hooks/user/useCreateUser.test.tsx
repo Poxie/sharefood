@@ -8,25 +8,34 @@ jest.mock('@/api/user', () => ({
     createUser: jest.fn(),
 }))
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: false,
-        }
-    }
-});
-
-const wrapper = ({ children }: {
-    children: React.ReactNode;
-}) => {
-    return(
-        <QueryClientProvider client={queryClient}>
-            {children}
-        </QueryClientProvider>
-    )
-}
-
 describe('useCreateUser', () => {
+    let queryClient: QueryClient;
+    let wrapper: React.FC<{ children: React.ReactNode }>;
+    
+    beforeEach(() => {
+        queryClient = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: false,
+                }
+            }
+        });
+    
+        wrapper = ({ children }: {
+            children: React.ReactNode;
+        }) => {
+            return(
+                <QueryClientProvider client={queryClient}>
+                    {children}
+                </QueryClientProvider>
+            )
+        }
+    });
+    afterEach(() => {
+        queryClient.clear();
+        jest.resetAllMocks();
+    });
+
     it('updates the user on success', async () => {
         const data = {
             user: mockUser(),
