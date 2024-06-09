@@ -3,24 +3,57 @@ import Modal from "..";
 import ModalHeader from "../ModalHeader";
 import Input from "@/components/input";
 import Button from "@/components/button";
+import { useState } from "react";
+import Feedback, { FeedbackProps } from "@/components/feedback";
 
 export default function LoginModal() {
-    const t = useTranslations('modal');
+    const t = useTranslations();
+
+    const [info, setInfo] = useState({
+        username: '',
+        password: '',
+    })
+    const [feedback, setFeedback] = useState<null | FeedbackProps>(null);
+
+    const onChange = (key: keyof typeof info, value: string) => {
+        setInfo(prev => ({
+            ...prev,
+            [key]: value,
+        }))
+    }
+    const onSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const { username, password } = info;
+
+        if(!username || !password) {
+            setFeedback({
+                type: 'danger',
+                message: t('error.emptyFields'),
+            })
+            return;
+        }
+    }
 
     return(
         <Modal>
             <ModalHeader>
-                {t('login.title')}
+                {t('modal.login.title')}
             </ModalHeader>
-            <form>
+            <form onSubmit={onSubmit}>
                 <Input 
-                    placeholder={t('login.placeholder.username')}
+                    placeholder={t('modal.login.placeholder.username')}
+                    onChange={text => onChange('username', text)}
                 />
                 <Input 
-                    placeholder={t('login.placeholder.password')}
+                    placeholder={t('modal.login.placeholder.password')}
+                    onChange={text => onChange('password', text)}
                 />
+                {feedback && (
+                    <Feedback {...feedback} />
+                )}
                 <Button>
-                    {t('login.submit')}
+                    {t('modal.login.submit')}
                 </Button>
             </form>
         </Modal>

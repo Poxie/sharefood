@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import LoginModal from '@/modals/login';
-import { render, screen } from '@/test-utils';
+import { fireEvent, render, screen } from '@/test-utils';
 import messages from '@/messages/en.json';
 
 describe('LoginModal', () => {
@@ -26,5 +26,25 @@ describe('LoginModal', () => {
     it('should render the login button', () => {
         const button = screen.getByRole('button', { name: messages.modal.login.submit });
         expect(button).toBeInTheDocument();
+    })
+    describe.each([
+        { username: '', password: '' },
+        { username: '', password: 'password' },
+        { username: 'username', password: '' },
+    ])('should show an error if the form is submitted with empty fields', ({ username, password }) => {
+        it('should show an error', () => {
+            const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
+            const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
+
+            fireEvent.change(usernameInput, { target: { value: username } });
+            fireEvent.change(passwordInput, { target: { value: password } });
+
+            const button = screen.getByRole('button', { name: messages.modal.login.submit });
+            fireEvent.click(button);
+
+            const error = screen.getByText(messages.error.emptyFields);
+
+            expect(error).toBeInTheDocument();
+        })
     })
 })
