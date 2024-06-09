@@ -24,6 +24,14 @@
                 "password": "Password",
                 "confirmPassword": "Confirm password"
             }
+        },
+        "login": {
+            "title": "Log in to ShareFood",
+            "placeholder": {
+                "username": "Username",
+                "password": "Password"
+            },
+            "submit": "Log in"
         }
     },
     "error": {
