@@ -6,6 +6,11 @@ import * as useLoginUser from '@/hooks/users/useLoginUser';
 import { UseMutationResult } from '@tanstack/react-query';
 import { User } from '@/types';
 
+type MutationOverrides = UseMutationResult<User, Error, {
+    username: string;
+    password: string;
+}>
+
 describe('LoginModal', () => {
     afterEach(() => {
         jest.clearAllMocks();
@@ -60,11 +65,15 @@ describe('LoginModal', () => {
     })
 
     describe('Mutations', () => {
+        const mockUseLoginUser = (overrides: Partial<MutationOverrides>) => {
+            jest.spyOn(useLoginUser, 'default').mockReturnValue({
+                ...overrides,
+            } as MutationOverrides);
+        }
+
         it('should call the login mutation on form submission', async () => {
             const mutateFn = jest.fn();
-            jest.spyOn(useLoginUser, 'default').mockReturnValue({
-                mutate: mutateFn,
-            } as any);
+            mockUseLoginUser({ mutate: mutateFn });
 
             render(<LoginModal />)
 
