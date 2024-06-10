@@ -45,7 +45,10 @@ export default function LoginModal() {
             <ModalHeader>
                 {t('modal.login.title')}
             </ModalHeader>
-            <form onSubmit={onSubmit}>
+            <form 
+                onSubmit={onSubmit}
+                className="p-4 pt-0 grid gap-2"
+            >
                 <Input 
                     placeholder={t('modal.login.placeholder.username')}
                     onChange={text => onChange('username', text)}
