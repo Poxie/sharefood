@@ -1,5 +1,7 @@
 import app from '@/app';
 import BadRequestError from '@/errors/BadRequestError';
+import { signToken } from '@/utils/auth';
+import { COOKIE_AGE } from '@/utils/constants';
 import Users from '@/utils/users';
 import express from 'express';
 
@@ -13,6 +15,12 @@ router.post('/', async (req, res, next) => {
 
     try {
         const user = await Users.authenticate(username, password);
+
+        const token = signToken(user.id);
+        res.cookie('accessToken', token, {
+            maxAge: COOKIE_AGE,
+        });
+
         res.send(user);
     } catch(error) {
         return next(error);
