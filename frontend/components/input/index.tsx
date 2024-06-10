@@ -1,8 +1,8 @@
 "use client";
-import { useRef } from "react";
+import { InputHTMLAttributes, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, submitIcon, submitIconClassName, containerClassName }: {
+export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, submitIcon, submitIconClassName, containerClassName, type="text" }: {
     onChange?: (text: string) => void;
     onSubmit?: (text: string) => void;
     className?: string;
@@ -13,6 +13,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
     submitIconClassName?: string;
     containerClassName?: string;
     defaultValue?: string;
+    type?: InputHTMLAttributes<HTMLInputElement>['type']
 }) {
     const ref = useRef<HTMLInputElement>(null);
 
@@ -50,7 +51,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
                 </div>
             )}
             <input 
-                type="text"
+                type={type}
                 className={twMerge(
                     "w-full p-3 rounded-md border-[1px] border-tertiary",
                     icon && (

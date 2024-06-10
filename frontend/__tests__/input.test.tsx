@@ -18,6 +18,16 @@ describe('Input', () => {
 
         expect(input).toBeInTheDocument();
     })
+    it('should render a password input if type is password', () => {
+        const type = 'password';
+        const placeholder = 'Password';
+
+        const { getByPlaceholderText } = render(<Input type={type} placeholder={placeholder} />);
+
+        const input = getByPlaceholderText(placeholder);
+
+        expect(input).toHaveAttribute('type', type);
+    });
     it('should render the input with the default value', () => {
         const value = 'Hello';
 
