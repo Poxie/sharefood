@@ -54,4 +54,20 @@ describe('POST /login', () => {
         expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
         expect(response.body).toEqual({ message: error.message });
     })
+    it('should return 400 if the username is missing', async () => {
+        const response = await request
+            .post('/login')
+            .send({ password: 'password' });
+
+        expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+        expect(response.body).toEqual({ message: 'Username is required.' });
+    })
+    it('should return 400 if the password is missing', async () => {
+        const response = await request
+            .post('/login')
+            .send({ username: 'username' });
+
+        expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+        expect(response.body).toEqual({ message: 'Password is required.' });
+    })
 })
