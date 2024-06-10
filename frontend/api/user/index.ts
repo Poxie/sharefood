@@ -16,3 +16,14 @@ export async function createUser({ username, password }: {
     })
     return user;
 }
+
+export async function loginUser({ username, password }: {
+    username: string;
+    password: string;
+}) {
+    const user = await fetchFromAPI<User>('/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    })
+    return user;
+}
