@@ -38,7 +38,7 @@ describe('fetchFromAPI', () => {
         const errorMessage = 'Something went wrong';
         
         nock(process.env.NEXT_PUBLIC_API_URL)
-            .get('/test')
+            .get(path)
             .reply(400, { message: errorMessage });
 
         await expect(fetchFromAPI(path)).rejects.toThrow(new Error(errorMessage));
