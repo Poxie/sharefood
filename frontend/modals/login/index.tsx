@@ -10,7 +10,7 @@ import useLoginUser from "@/hooks/users/useLoginUser";
 export default function LoginModal() {
     const t = useTranslations();
 
-    const { mutate } = useLoginUser();
+    const { mutate, isPending } = useLoginUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -57,8 +57,12 @@ export default function LoginModal() {
                 {feedback && (
                     <Feedback {...feedback} />
                 )}
-                <Button>
-                    {t('modal.login.submit')}
+                <Button disabled={isPending}>
+                    {!isPending ? (
+                        t('modal.login.submit')
+                        ) : (
+                        t('modal.login.submitting')
+                    )}
                 </Button>
             </form>
         </Modal>

@@ -31,7 +31,8 @@
                 "username": "Username",
                 "password": "Password"
             },
-            "submit": "Log in"
+            "submit": "Log in",
+            "submitting": "Logging in..."
         }
     },
     "error": {

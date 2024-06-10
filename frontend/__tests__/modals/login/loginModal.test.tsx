@@ -91,5 +91,21 @@ describe('LoginModal', () => {
     
             expect(mutateFn).toHaveBeenCalledWith({ username, password });
         })
+        it('should display the loading text while the login request is pending', () => {
+            mockUseLoginUser({ isPending: true });
+
+            render(<LoginModal />);
+
+            const loading = screen.getByRole('button', { name: messages.modal.login.submitting });
+            expect(loading).toBeInTheDocument();
+        })
+        it('should disable the login button while the login request is pending', () => {
+            mockUseLoginUser({ isPending: true });
+
+            render(<LoginModal />);
+
+            const button = screen.getByRole('button', { name: messages.modal.login.submitting });
+            expect(button).toBeDisabled();
+        })
     })
 })
