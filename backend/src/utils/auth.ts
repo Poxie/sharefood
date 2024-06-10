@@ -2,6 +2,9 @@ import InvalidAccessTokenError from '@/errors/InvalidAccessTokenError';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken'
 
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env' });
+
 const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
 
 export const signToken = (userId: string) => {
