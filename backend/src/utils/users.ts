@@ -34,6 +34,16 @@ export default class Users {
         return user.isAdmin;
     }
 
+    static async authenticate(username: string, password: string) {
+        const user = await this.getUserByUsername(username);
+        if(!user) throw new UnauthorizedError();
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if(!passwordMatch) throw new UnauthorizedError();
+
+        return exclude(user, ['password']);
+    }
+
     static async getUserByUsername(username: string) {
         const user = await prisma.user.findUnique({ where: { username } });
         if(!user) return null;

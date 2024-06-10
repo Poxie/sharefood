@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt, { compare } from 'bcrypt';
 import * as UserUtils from '@/utils/users';
 import { prismaMock } from '../../../singleton';
 import { User } from '@prisma/client';
@@ -8,9 +8,11 @@ import UserNotFoundError from '@/errors/UserNotFoundError';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import BadRequestError from '@/errors/BadRequestError';
+import { exclude } from '../../../test-utils';
 
 jest.mock('bcrypt', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
+    compare: jest.fn(),
 }));
 
 // Mock data
@@ -34,6 +36,7 @@ const { generateUserId } = UserUtils;
 describe('Users Utils', () => {
     afterEach(() => {
         jest.clearAllMocks();
+        jest.restoreAllMocks();
     })
 
     describe('generateUserId', () => {
@@ -57,6 +60,36 @@ describe('Users Utils', () => {
             await generateUserId();
             
             expect(spy).toHaveBeenCalledTimes(2);
+        })
+    })
+
+    describe('authenticate', () => {
+        it('should compare a user\'s password and return the user if they match', async () => {
+            const user = mockUser();
+            const getUserSpy = jest.spyOn(Users, 'getUserByUsername').mockResolvedValue(user);
+            const compareSpy = jest.spyOn(bcrypt, 'compare').mockImplementation(() => true);
+
+            const result = await Users.authenticate(user.username, user.password);
+
+            expect(result).toEqual(exclude(user, ['password']));
+            expect(getUserSpy).toHaveBeenCalledWith(user.username);
+            expect(compareSpy).toHaveBeenCalledWith(user.password, user.password);
+        })
+        it('should throw an unauthorized error if the user does not exist', async () => {
+            const user = mockUser();
+            jest.spyOn(Users, 'getUserByUsername').mockResolvedValue(null);
+            const compareSpy = jest.spyOn(bcrypt, 'compare');
+
+            await expect(Users.authenticate(user.username, user.password)).rejects.toEqual(new UnauthorizedError());
+            expect(compareSpy).not.toHaveBeenCalled();      
+        })
+        it('should throw an unauthorized error if the password does not match', async () => {
+            const user = mockUser();
+            jest.spyOn(Users, 'getUserByUsername').mockResolvedValue(user);
+            const compareSpy = jest.spyOn(bcrypt, 'compare').mockImplementation(() => false);
+
+            await expect(Users.authenticate(user.username, user.password)).rejects.toEqual(new UnauthorizedError());
+            expect(compareSpy).toHaveBeenCalledWith(user.password, user.password);
         })
     })
 
