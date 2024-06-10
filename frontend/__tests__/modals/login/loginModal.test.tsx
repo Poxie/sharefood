@@ -17,9 +17,20 @@ describe('LoginModal', () => {
         jest.restoreAllMocks();
     })
 
+    const getFormElements = () => {
+        const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
+        const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
+        const button = screen.getByRole('button', { name: messages.modal.login.submit });
+
+        return { usernameInput, passwordInput, button };
+    }
+    const updateInput = (input: HTMLElement, value: string) => {
+        fireEvent.change(input, { target: { value } });
+    }
+
     describe('Structure and validation', () => {
         beforeEach(() => {
-            jest.spyOn(useLoginUser, 'default').mockReturnValue({} as any);
+            jest.spyOn(useLoginUser, 'default').mockReturnValue({} as MutationOverrides);
             render(<LoginModal />);
         })
 
@@ -32,11 +43,10 @@ describe('LoginModal', () => {
             expect(header).toBeInTheDocument();
         })
         it('should render the login form inputs', () => {
-            const username = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
-            const password = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
+            const { usernameInput, passwordInput } = getFormElements();
     
-            expect(username).toBeInTheDocument();
-            expect(password).toBeInTheDocument();
+            expect(usernameInput).toBeInTheDocument();
+            expect(passwordInput).toBeInTheDocument();
         })
         it('should render the login button', () => {
             const button = screen.getByRole('button', { name: messages.modal.login.submit });
@@ -48,11 +58,10 @@ describe('LoginModal', () => {
             { username: 'username', password: '' },
         ])('should show an error if the form is submitted with empty fields', ({ username, password }) => {
             it('should show an error', () => {
-                const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
-                const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
+                const { usernameInput, passwordInput } = getFormElements();
     
-                fireEvent.change(usernameInput, { target: { value: username } });
-                fireEvent.change(passwordInput, { target: { value: password } });
+                updateInput(usernameInput, username);
+                updateInput(passwordInput, password);
     
                 const button = screen.getByRole('button', { name: messages.modal.login.submit });
                 fireEvent.click(button);
@@ -77,14 +86,13 @@ describe('LoginModal', () => {
 
             render(<LoginModal />)
 
-            const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
-            const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
+            const { usernameInput, passwordInput } = getFormElements();
     
             const username = 'username';
             const password = 'password';
 
-            fireEvent.change(usernameInput, { target: { value: username } });
-            fireEvent.change(passwordInput, { target: { value: password } });
+            updateInput(usernameInput, username);
+            updateInput(passwordInput, password);
     
             const button = screen.getByRole('button', { name: messages.modal.login.submit });
             fireEvent.click(button);
