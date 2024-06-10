@@ -35,11 +35,13 @@ export default class Users {
     }
 
     static async authenticate(username: string, password: string) {
+        const unauthorizedError = new UnauthorizedError('Invalid username or password.');
+
         const user = await this.getUserByUsername(username);
-        if(!user) throw new UnauthorizedError();
+        if(!user) throw unauthorizedError;
 
         const passwordMatch = await bcrypt.compare(password, user.password);
-        if(!passwordMatch) throw new UnauthorizedError();
+        if(!passwordMatch) throw unauthorizedError;
 
         return exclude(user, ['password']);
     }
