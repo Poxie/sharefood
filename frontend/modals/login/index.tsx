@@ -56,6 +56,7 @@ export default function LoginModal() {
                 <Input 
                     placeholder={t('modal.login.placeholder.password')}
                     onChange={text => onChange('password', text)}
+                    type="password"
                 />
                 {feedback && (
                     <Feedback {...feedback} />

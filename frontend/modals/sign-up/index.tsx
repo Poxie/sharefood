@@ -69,11 +69,13 @@ export default function SignupModal() {
                     placeholder={t('modal.signup.placeholder.password')}
                     className="bg-secondary text-base"
                     onChange={text => updateInfo('password', text)}
+                    type="password"
                 />
                 <Input 
                     placeholder={t('modal.signup.placeholder.confirmPassword')}
                     className="bg-secondary text-base"
                     onChange={text => updateInfo('confirmPassword', text)}
+                    type="password"
                 />
                 {feedback && (
                     <Feedback {...feedback} />

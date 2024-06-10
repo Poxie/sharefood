@@ -47,6 +47,7 @@ describe('LoginModal', () => {
     
             expect(usernameInput).toBeInTheDocument();
             expect(passwordInput).toBeInTheDocument();
+            expect(passwordInput).toHaveAttribute('type', 'password');
         })
         it('should render the login button', () => {
             const button = screen.getByRole('button', { name: messages.modal.login.submit });

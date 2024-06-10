@@ -42,10 +42,12 @@ describe('SignupModal', () => {
         it('should render the password input', () => {
             const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
             expect(input).toBeInTheDocument();
+            expect(input).toHaveAttribute('type', 'password');
         })
         it('should render the confirm password input', () => {
             const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
             expect(input).toBeInTheDocument();
+            expect(input).toHaveAttribute('type', 'password');
         })
         it('should render the submit button', () => {
             const button = screen.getByRole('button', { name: messages.modal.signup.submit });
