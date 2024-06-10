@@ -18,12 +18,21 @@ export const useModal = () => {
 export default function ModalProvider({ children }: {
     children: React.ReactNode;
 }) {
-    const [modal, setModal] = useState<null | React.ReactNode>(null);
+    const [modal, setModal] = useState<null | {
+        id: string;
+        modalElement: React.ReactNode;
+    }>(null);
 
+    const _setModal = (modal: React.ReactNode) => {
+        setModal({
+            id: Math.random().toString(),
+            modalElement: modal,
+        });
+    }
     const closeModal = () => setModal(null);
 
     const value = {
-        setModal,
+        setModal: _setModal,
         closeModal,
     }
     return(
@@ -33,12 +42,14 @@ export default function ModalProvider({ children }: {
                 data-testid="modal-container"
                 className="fixed top-0 left-0 w-full h-full pointer-events-none"
             >
-                {process.env.NODE_ENV === 'test' ? modal : (
+                {process.env.NODE_ENV === 'test' ? modal?.modalElement : (
                     <AnimatePresence>
-                        {modal}
+                        <div key={modal?.id}>
+                            {modal?.modalElement}
+                        </div>
                     </AnimatePresence>
                 )}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                     {modal && (
                         <motion.div 
                             data-testid="modal-backdrop"
