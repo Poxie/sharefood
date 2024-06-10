@@ -60,6 +60,22 @@ describe('Users Utils', () => {
         })
     })
 
+    describe('getUserByUsername', () => {
+        it('should return a user if the user exists', async () => {
+            const user = mockUser();
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const result = await Users.getUserByUsername(user.username);
+
+            expect(result).toEqual(user);
+        })
+        it('should return null if the user does not exist', async () => {
+            const username = 'nonexistent';
+            prismaMock.user.findUnique.mockResolvedValue(null);
+
+            expect(Users.getUserByUsername(username)).resolves.toBeNull();
+        })
+    })
     describe('getUserById', () => {
         it('should return a user if the user exists', async () => {
             const user = mockUser(['password']);

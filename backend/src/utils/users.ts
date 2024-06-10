@@ -34,6 +34,13 @@ export default class Users {
         return user.isAdmin;
     }
 
+    static async getUserByUsername(username: string) {
+        const user = await prisma.user.findUnique({ where: { username } });
+        if(!user) return null;
+
+        return user;
+    }
+
     static async getUserById(id: string) {
         const user = await prisma.user.findUnique({ where: { id } });
         if(!user) return null;
