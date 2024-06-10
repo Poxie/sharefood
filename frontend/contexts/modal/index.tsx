@@ -28,8 +28,12 @@ export default function ModalProvider({ children }: {
             id: Math.random().toString(),
             modalElement: modal,
         });
+        document.body.style.overflow = 'hidden';
     }
-    const closeModal = () => setModal(null);
+    const closeModal = () => {
+        setModal(null);
+        document.body.style.overflow = '';
+    }
 
     const value = {
         setModal: _setModal,

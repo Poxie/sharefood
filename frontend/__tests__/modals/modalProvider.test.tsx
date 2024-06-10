@@ -75,4 +75,25 @@ describe('ModalProvider', () => {
         const modal = screen.queryByTestId('modal');
         expect(modal).not.toBeInTheDocument();
     })
+    it('should prevent scrolling when modal is open', () => {
+        render(<CustomTest />)
+
+        const openButton = screen.getByText('Open Modal');
+        fireEvent.click(openButton);
+
+        const body = document.body;
+        expect(body).toHaveStyle('overflow: hidden');
+    })
+    it('should restore scrolling when modal is closed', () => {
+        render(<CustomTest />)
+
+        const openButton = screen.getByText('Open Modal');
+        fireEvent.click(openButton);
+
+        const closeButton = screen.getByTestId('modal-backdrop');
+        fireEvent.click(closeButton);
+
+        const body = document.body;
+        expect(body).not.toHaveStyle('overflow: hidden');
+    })
 })
