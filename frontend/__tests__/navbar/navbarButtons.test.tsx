@@ -1,8 +1,9 @@
 import '@testing-library/jest-dom'
-import { render, screen } from '@/test-utils';
+import { fireEvent, render, screen } from '@/test-utils';
 import NavbarButtons from '@/components/navbar/NavbarButtons';
 import * as ModalContext from '@/contexts/modal';
 import SignupModal from '@/modals/sign-up';
+import LoginModal from '@/modals/login';
 
 describe('NavbarButtons', () => {
     const closeMock = jest.fn();
@@ -27,8 +28,14 @@ describe('NavbarButtons', () => {
     })
     it('should open the sign up modal when the sign up button is clicked', () => {
         const signupButton = screen.getByText('Sign up');
-        signupButton.click();
+        fireEvent.click(signupButton);
 
         expect(setModalMock).toHaveBeenCalledWith(<SignupModal />);
+    })
+    it('should open the login modal when the log in button is clicked', () => {
+        const loginButton = screen.getByText('Log in');
+        fireEvent.click(loginButton);
+
+        expect(setModalMock).toHaveBeenCalledWith(<LoginModal />);
     })
 })

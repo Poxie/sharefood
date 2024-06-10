@@ -1,6 +1,7 @@
 import SignupModal from "@/modals/sign-up";
 import Button from "../button";
 import { useModal } from "@/contexts/modal";
+import LoginModal from "@/modals/login";
 
 export default function NavbarButtons() {
     const { setModal } = useModal();
@@ -10,6 +11,7 @@ export default function NavbarButtons() {
             <Button 
                 type="transparent"
                 className="-my-3"
+                onClick={() => setModal(<LoginModal />)}
             >
                 Log in
             </Button>
