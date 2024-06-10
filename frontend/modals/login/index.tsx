@@ -6,9 +6,13 @@ import Button from "@/components/button";
 import { useState } from "react";
 import Feedback, { FeedbackProps } from "@/components/feedback";
 import useLoginUser from "@/hooks/users/useLoginUser";
+import { useModal } from "@/contexts/modal";
+import SignupModal from "../sign-up";
 
 export default function LoginModal() {
     const t = useTranslations();
+
+    const { setModal } = useModal();
 
     const { mutate, isPending, error } = useLoginUser();
 
@@ -17,6 +21,8 @@ export default function LoginModal() {
         password: '',
     })
     const [feedback, setFeedback] = useState<null | FeedbackProps>(null);
+
+    const switchToSignup = () => setModal(<SignupModal />);
 
     const onChange = (key: keyof typeof info, value: string) => {
         setInfo(prev => ({
@@ -72,6 +78,14 @@ export default function LoginModal() {
                     )}
                 </Button>
             </form>
+            <div className="p-5 flex justify-center bg-secondary">
+                <button 
+                    className="text-sm hover:underline"
+                    onClick={switchToSignup}
+                >
+                    {t('modal.login.switchToSignup')}
+                </button>
+            </div>
         </Modal>
     )
 }

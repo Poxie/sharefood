@@ -5,6 +5,9 @@ import messages from '@/messages/en.json';
 import * as useLoginUser from '@/hooks/users/useLoginUser';
 import { UseMutationResult } from '@tanstack/react-query';
 import { User } from '@/types';
+import * as Modals from '@/contexts/modal';
+import SignupModal from '@/modals/sign-up';
+import * as useCreateUser from '@/hooks/users/useCreateUser';
 
 type MutationOverrides = UseMutationResult<User, Error, {
     username: string;
@@ -31,45 +34,74 @@ describe('LoginModal', () => {
     describe('Structure and validation', () => {
         beforeEach(() => {
             jest.spyOn(useLoginUser, 'default').mockReturnValue({} as MutationOverrides);
-            render(<LoginModal />);
         })
 
-        it('should render the login modal', () => {
-            const modal = screen.getByTestId('modal');
-            expect(modal).toBeInTheDocument();
-        })
-        it('should render the header text', () => {
-            const header = screen.getByText(messages.modal.login.title);
-            expect(header).toBeInTheDocument();
-        })
-        it('should render the login form inputs', () => {
-            const { usernameInput, passwordInput } = getFormElements();
+        describe('Rendering the form', () => {
+            beforeEach(() => {
+                render(<LoginModal />);
+            })
     
-            expect(usernameInput).toBeInTheDocument();
-            expect(passwordInput).toBeInTheDocument();
-            expect(passwordInput).toHaveAttribute('type', 'password');
-        })
-        it('should render the login button', () => {
-            const button = screen.getByRole('button', { name: messages.modal.login.submit });
-            expect(button).toBeInTheDocument();
-        })
-        describe.each([
-            { username: '', password: '' },
-            { username: '', password: 'password' },
-            { username: 'username', password: '' },
-        ])('should show an error if the form is submitted with empty fields', ({ username, password }) => {
-            it('should show an error', () => {
+            it('should render the login modal', () => {
+                const modal = screen.getByTestId('modal');
+                expect(modal).toBeInTheDocument();
+            })
+            it('should render the header text', () => {
+                const header = screen.getByText(messages.modal.login.title);
+                expect(header).toBeInTheDocument();
+            })
+            it('should render the login form inputs', () => {
                 const { usernameInput, passwordInput } = getFormElements();
-    
-                updateInput(usernameInput, username);
-                updateInput(passwordInput, password);
-    
+        
+                expect(usernameInput).toBeInTheDocument();
+                expect(passwordInput).toBeInTheDocument();
+                expect(passwordInput).toHaveAttribute('type', 'password');
+            })
+            it('should render the login button', () => {
                 const button = screen.getByRole('button', { name: messages.modal.login.submit });
+                expect(button).toBeInTheDocument();
+            })
+            describe.each([
+                { username: '', password: '' },
+                { username: '', password: 'password' },
+                { username: 'username', password: '' },
+            ])('should show an error if the form is submitted with empty fields', ({ username, password }) => {
+                it('should show an error', () => {
+                    const { usernameInput, passwordInput } = getFormElements();
+        
+                    updateInput(usernameInput, username);
+                    updateInput(passwordInput, password);
+        
+                    const button = screen.getByRole('button', { name: messages.modal.login.submit });
+                    fireEvent.click(button);
+        
+                    const error = screen.getByText(messages.error.emptyFields);
+        
+                    expect(error).toBeInTheDocument();
+                })
+            })
+        })
+
+        describe('Switching to the signup modal', () => {
+            it('should render a button to switch to the signup modal', () => {
+                render(<LoginModal />);
+                const button = screen.getByRole('button', { name: messages.modal.login.switchToSignup });
+                expect(button).toBeInTheDocument();
+            })
+            it('should open the signup modal when the switch button is clicked', () => {
+                jest.spyOn(useCreateUser, 'default').mockReturnValue({} as any);
+                
+                const setModalFn = jest.fn();
+                jest.spyOn(Modals, 'useModal').mockReturnValue({ 
+                    setModal: setModalFn,
+                    closeModal: jest.fn(),
+                });
+                
+                render(<LoginModal />);
+    
+                const button = screen.getByRole('button', { name: messages.modal.login.switchToSignup });
                 fireEvent.click(button);
     
-                const error = screen.getByText(messages.error.emptyFields);
-    
-                expect(error).toBeInTheDocument();
+                expect(setModalFn).toHaveBeenCalledWith(<SignupModal />);
             })
         })
     })
