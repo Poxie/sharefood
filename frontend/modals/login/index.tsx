@@ -10,7 +10,7 @@ import useLoginUser from "@/hooks/users/useLoginUser";
 export default function LoginModal() {
     const t = useTranslations();
 
-    const { mutate, isPending } = useLoginUser();
+    const { mutate, isPending, error } = useLoginUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -24,7 +24,7 @@ export default function LoginModal() {
             [key]: value,
         }))
     }
-    const onSubmit = (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const { username, password } = info;
@@ -56,6 +56,9 @@ export default function LoginModal() {
                 />
                 {feedback && (
                     <Feedback {...feedback} />
+                )}
+                {error && (
+                    <Feedback type="danger" message={error.message} />
                 )}
                 <Button disabled={isPending}>
                     {!isPending ? (

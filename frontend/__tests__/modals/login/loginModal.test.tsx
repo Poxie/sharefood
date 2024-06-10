@@ -107,5 +107,14 @@ describe('LoginModal', () => {
             const button = screen.getByRole('button', { name: messages.modal.login.submitting });
             expect(button).toBeDisabled();
         })
+        it('should display an error message if the login request fails', () => {
+            const error = new Error('Invalid username or password.');
+            mockUseLoginUser({ isError: true, error });
+
+            render(<LoginModal />);
+
+            const errorMessage = screen.getByText(error.message);
+            expect(errorMessage).toBeInTheDocument();
+        })
     })
 })
