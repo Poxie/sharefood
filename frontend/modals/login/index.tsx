@@ -5,9 +5,12 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import { useState } from "react";
 import Feedback, { FeedbackProps } from "@/components/feedback";
+import useLoginUser from "@/hooks/users/useLoginUser";
 
 export default function LoginModal() {
     const t = useTranslations();
+
+    const { mutate } = useLoginUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -33,6 +36,8 @@ export default function LoginModal() {
             })
             return;
         }
+
+        mutate({ username, password });
     }
 
     return(
