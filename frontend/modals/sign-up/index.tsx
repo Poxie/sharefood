@@ -8,11 +8,14 @@ import Feedback, { FeedbackProps } from "../../components/feedback";
 import useCreateUser from "@/hooks/users/useCreateUser";
 import { useModal } from "@/contexts/modal";
 import LoginModal from "../login";
+import useRefetchQueries from "@/hooks/react-query/useRefetchQueries";
 
 export default function SignupModal() {
     const t = useTranslations();
 
-    const { setModal } = useModal();
+    const refetch = useRefetchQueries();
+
+    const { setModal, closeModal } = useModal();
 
     const { isPending, mutateAsync, error } = useCreateUser();
 
@@ -55,6 +58,8 @@ export default function SignupModal() {
 
         try {
             await mutateAsync({ username, password });
+            refetch(['current-user']);
+            closeModal();
         } catch(error) {
             console.error(error);
         }

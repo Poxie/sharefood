@@ -7,6 +7,7 @@ import * as Modals from '@/contexts/modal';
 import LoginModal from '@/modals/login';
 import { UseMutationResult } from '@tanstack/react-query';
 import  * as useCreateUser from '@/hooks/users/useCreateUser';
+import * as useRefetchQueries from '@/hooks/react-query/useRefetchQueries';
 
 type MutationOverrides = UseMutationResult<UserCreateResponse, Error, {
     username: string;
@@ -34,6 +35,21 @@ describe('SignupModal', () => {
         const submitButton = getButton(messages.modal.signup.submit);
 
         return { usernameInput, passwordInput, confirmPasswordInput, submitButton };
+    }
+
+    const submitValidForm = () => {
+        const { usernameInput, passwordInput, confirmPasswordInput, submitButton } = getFormElements();
+
+        const username = 'username';
+        const password = 'password';
+
+        updateInput(usernameInput, username);
+        updateInput(passwordInput, password);
+        updateInput(confirmPasswordInput, password);
+
+        fireEvent.click(submitButton);
+
+        return { username, password };
     }
 
     describe('Structure and validation', () => {
@@ -133,17 +149,9 @@ describe('SignupModal', () => {
     
             renderWithQueryClient();
             
-            const { usernameInput, passwordInput, confirmPasswordInput, submitButton } = getFormElements();
+            const { username, password } = submitValidForm();
     
-            const usernameValue = 'test';
-            const passwordValue = 'password';
-            updateInput(usernameInput, usernameValue);
-            updateInput(passwordInput, passwordValue);
-            updateInput(confirmPasswordInput, passwordValue);
-    
-            fireEvent.click(submitButton);
-    
-            expect(createUserFunction).toHaveBeenCalledWith({ username: usernameValue, password: passwordValue });
+            expect(createUserFunction).toHaveBeenCalledWith({ username, password });
         })
         it('should show loading state when the form is submitted', () => {
             mockUseCreateUser({ isPending: true });
@@ -172,6 +180,35 @@ describe('SignupModal', () => {
             const error = screen.getByText(errorMessage);
     
             expect(error).toBeInTheDocument();
+        })
+        it('should close the modal when the form submission is successful', async () => {
+            const closeModalFn = jest.fn();
+            jest.spyOn(Modals, 'useModal').mockReturnValue({
+                setModal: jest.fn(),
+                closeModal: closeModalFn,
+            });
+
+            jest.spyOn(useRefetchQueries, 'default').mockReturnValue(jest.fn());
+
+            mockUseCreateUser({ mutateAsync: jest.fn() });
+
+            renderWithQueryClient();
+
+            submitValidForm();
+
+            await waitFor(() => expect(closeModalFn).toHaveBeenCalled());
+        })
+        it('should run the refetch function to get the current user after successful form submission', async () => {
+            const refetchFn = jest.fn();
+            jest.spyOn(useRefetchQueries, 'default').mockReturnValue(refetchFn);
+
+            mockUseCreateUser({ mutateAsync: jest.fn() });
+
+            renderWithQueryClient();
+
+            submitValidForm();
+
+            await waitFor(() => expect(refetchFn).toHaveBeenCalledWith(['current-user']));
         })
     })
 })
