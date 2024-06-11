@@ -33,9 +33,9 @@ describe('LoginModal', () => {
     const getFormElements = () => {
         const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
         const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
-        const button = screen.getByRole('button', { name: messages.modal.login.submit });
+        const submitButton = screen.getByRole('button', { name: messages.modal.login.submit });
 
-        return { usernameInput, passwordInput, button };
+        return { usernameInput, passwordInput, submitButton };
     }
     const updateInput = (input: HTMLElement, value: string) => {
         fireEvent.change(input, { target: { value } });
@@ -85,8 +85,8 @@ describe('LoginModal', () => {
                 expect(passwordInput).toHaveAttribute('type', 'password');
             })
             it('should render the login button', () => {
-                const button = getButton(messages.modal.login.submit);
-                expect(button).toBeInTheDocument();
+                const { submitButton } = getFormElements();
+                expect(submitButton).toBeInTheDocument();
             })
             describe.each([
                 { username: '', password: '' },
@@ -94,13 +94,12 @@ describe('LoginModal', () => {
                 { username: 'username', password: '' },
             ])('should show an error if the form is submitted with empty fields', ({ username, password }) => {
                 it('should show an error', () => {
-                    const { usernameInput, passwordInput } = getFormElements();
+                    const { usernameInput, passwordInput, submitButton } = getFormElements();
         
                     updateInput(usernameInput, username);
                     updateInput(passwordInput, password);
         
-                    const button = getButton(messages.modal.login.submit)
-                    fireEvent.click(button);
+                    fireEvent.click(submitButton);
         
                     const error = screen.getByText(messages.error.emptyFields);
         
@@ -112,7 +111,9 @@ describe('LoginModal', () => {
         describe('Switching to the signup modal', () => {
             it('should render a button to switch to the signup modal', () => {
                 renderWithQueryClient();
+
                 const button = getButton(messages.modal.login.switchToSignup);
+
                 expect(button).toBeInTheDocument();
             })
             it('should open the signup modal when the switch button is clicked', () => {
