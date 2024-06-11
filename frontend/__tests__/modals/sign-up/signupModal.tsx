@@ -2,10 +2,16 @@ import '@testing-library/jest-dom';
 import SignupModal from '@/modals/sign-up';
 import { QueryWrapper, fireEvent, render, renderHook, screen, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
-import * as useCreateUser from '@/hooks/users/useCreateUser';
-import { UserCreateResponse } from '@/types';
+import { User, UserCreateResponse } from '@/types';
 import * as Modals from '@/contexts/modal';
 import LoginModal from '@/modals/login';
+import { UseMutationResult } from '@tanstack/react-query';
+import  * as useCreateUser from '@/hooks/users/useCreateUser';
+
+type MutationOverrides = UseMutationResult<UserCreateResponse, Error, {
+    username: string;
+    password: string;
+}, unknown>
 
 describe('SignupModal', () => {
     afterEach(() => {
@@ -108,31 +114,15 @@ describe('SignupModal', () => {
     })
 
     describe('Mutation', () => {
-        const mockCreateUserValue: {
-            createUser: jest.Func;
-            isPending: boolean;
-            isError: boolean;
-            data: undefined | UserCreateResponse;
-            isSuccess: boolean;
-            error: null | Error;
-        } = {
-            createUser: jest.fn(),
-            isPending: false,
-            isError: false,
-            data: undefined,
-            isSuccess: false,
-            error: null,
-        }
-        const mockCreateUser = (overrideValue: Partial<typeof mockCreateUserValue>) => {
+        const mockUseCreateUser = (overrides: Partial<MutationOverrides>) => {
             jest.spyOn(useCreateUser, 'default').mockReturnValue({
-                ...mockCreateUserValue,
-                ...overrideValue,
-            });
+                ...overrides,
+            } as MutationOverrides);
         }
 
         it('should call the mutate function when the form is submitted', async () => {
             const createUserFunction = jest.fn();
-            mockCreateUser({ createUser: createUserFunction });
+            mockUseCreateUser({ mutateAsync: createUserFunction });
     
             renderWithQueryClient();
             
@@ -152,7 +142,7 @@ describe('SignupModal', () => {
             expect(createUserFunction).toHaveBeenCalledWith({ username: usernameValue, password: passwordValue });
         })
         it('should show loading state when the form is submitted', () => {
-            mockCreateUser({ isPending: true });
+            mockUseCreateUser({ isPending: true });
     
             renderWithQueryClient();
     
@@ -161,7 +151,7 @@ describe('SignupModal', () => {
             expect(loading).toBeInTheDocument();
         })
         it('should have a disabled submit button when the form is submitting', () => {
-            mockCreateUser({ isPending: true });
+            mockUseCreateUser({ isPending: true });
     
             renderWithQueryClient();
     
@@ -171,7 +161,7 @@ describe('SignupModal', () => {
         })
         it('should show an error if the form submission fails', () => {
             const errorMessage = 'An error occurred';
-            mockCreateUser({ isError: true, error: new Error(errorMessage) });
+            mockUseCreateUser({ isError: true, error: new Error(errorMessage) });
     
             renderWithQueryClient();
     

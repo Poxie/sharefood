@@ -14,7 +14,7 @@ export default function SignupModal() {
 
     const { setModal } = useModal();
 
-    const { isPending, createUser, error } = useCreateUser();
+    const { isPending, mutateAsync, error } = useCreateUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -33,7 +33,7 @@ export default function SignupModal() {
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const { username, password, confirmPassword } = info;
@@ -53,7 +53,11 @@ export default function SignupModal() {
             return;
         }
 
-        createUser({ username, password });
+        try {
+            await mutateAsync({ username, password });
+        } catch(error) {
+            console.error(error);
+        }
     }
     
     return(
