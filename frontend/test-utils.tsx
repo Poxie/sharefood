@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import messages from './messages/en.json';
 import { NextIntlClientProvider } from 'next-intl';
 import ModalProvider from './contexts/modal';
@@ -38,4 +38,7 @@ export const QueryWrapper = ({ children, defaultClient }: {
 
 export function updateInput(input: HTMLElement, text: string) {
     fireEvent.change(input, { target: { value: text } });
+}
+export function getButton(text: string) {
+    return screen.getByRole('button', { name: text });
 }
