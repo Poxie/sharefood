@@ -2,15 +2,16 @@
 import { InputHTMLAttributes, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, submitIcon, submitIconClassName, containerClassName, type="text" }: {
+export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, buttonIcon, buttonIconClassName, onButtonClick, containerClassName, type="text" }: {
     onChange?: (text: string) => void;
     onSubmit?: (text: string) => void;
     className?: string;
     placeholder?: string;
     icon?: React.ReactElement;
     iconClassName?: string;
-    submitIcon?: React.ReactElement;
-    submitIconClassName?: string;
+    buttonIcon?: React.ReactElement;
+    buttonIconClassName?: string;
+    onButtonClick?: () => void;
     containerClassName?: string;
     defaultValue?: string;
     type?: InputHTMLAttributes<HTMLInputElement>['type']
@@ -65,16 +66,17 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
                 value={defaultValue}
                 ref={ref}
             />
-            {submitIcon && (
+            {buttonIcon && (
                 <button 
                     data-testid="input-submit-icon"
                     className={twMerge(
                         "[--from-edge:1rem] absolute top-2/4 -translate-y-2/4 right-[calc(var(--from-edge)/2)] h-[calc(100%-var(--from-edge))] aspect-square flex items-center justify-center text-c-primary hover:bg-secondary transition-colors rounded-lg",
-                        submitIconClassName,
+                        buttonIconClassName,
                     )}
-                    onClick={handleSubmit}
+                    onClick={onButtonClick || handleSubmit}
+                    type="button"
                 >
-                    {submitIcon}
+                    {buttonIcon}
                 </button>
             )}
         </div>

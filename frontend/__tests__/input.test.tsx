@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import SendIcon from '@/assets/icons/SendIcon';
 import Input from '@/components/input'
-import { fireEvent, render } from '@/test-utils';
+import { fireEvent, render, screen } from '@/test-utils';
 
 describe('Input', () => {
     it('should render an input element', () => {
@@ -68,25 +68,6 @@ describe('Input', () => {
 
         expect(onSubmit).toHaveBeenCalledWith(text);
     })
-    it('should render the submit icon element if provided', () => {
-        const { getByTestId } = render(<Input submitIcon={<SendIcon />} />);
-
-        const icon = getByTestId('input-submit-icon');
-
-        expect(icon).toBeInTheDocument();
-    })
-    it('should call the onSubmit function when the submit icon is clicked', () => {
-        const onSubmit = jest.fn();
-
-        const text = 'Hello';
-        const { getByTestId } = render(<Input submitIcon={<SendIcon />} onSubmit={onSubmit} defaultValue={text} />);
-
-        const icon = getByTestId('input-submit-icon');
-
-        fireEvent.click(icon);
-
-        expect(onSubmit).toHaveBeenCalledWith(text);
-    })
     it('should set className on the input element if provided', () => {
         const className = 'text-primary';
 
@@ -114,13 +95,57 @@ describe('Input', () => {
 
         expect(icon).toHaveClass(className);
     })
-    it('should set submitIconClassName on the icon element if provided', () => {
-        const className = 'text-primary';
+    describe('when the button icon is provided', () => {
+        const renderInputWithButton = (props?: React.ComponentProps<typeof Input>) => {
+            render(
+                <Input 
+                    buttonIcon={<SendIcon />}
+                    {...props}
+                />
+            )
+        }
 
-        const { getByRole } = render(<Input submitIcon={<SendIcon />} submitIconClassName={className} />);
+        it('should render the button icon element if provided', () => {
+            renderInputWithButton()
+    
+            const icon = screen.getByTestId('input-submit-icon');
+    
+            expect(icon).toBeInTheDocument();
+        })
+        it('should call the onSubmit function when the button icon is clicked and onButtonClick is not provided', () => {
+            const onSubmit = jest.fn();
 
-        const icon = getByRole('button');
+            const text = 'Hello';
+            renderInputWithButton({
+                onSubmit,
+                defaultValue: text,
+            })
 
-        expect(icon).toHaveClass(className);
+            const icon = screen.getByTestId('input-submit-icon');
+
+            fireEvent.click(icon);
+
+            expect(onSubmit).toHaveBeenCalledWith(text);
+        })
+        it('should call the onButtonClick function when the button icon is clicked and onButtonClick is provided', () => {
+            const onButtonClick = jest.fn();
+
+            renderInputWithButton({ onButtonClick });
+
+            const icon = screen.getByTestId('input-submit-icon');
+
+            fireEvent.click(icon);
+
+            expect(onButtonClick).toHaveBeenCalled();
+        })
+        it('should set buttonIconClassName on the icon element if provided', () => {
+            const className = 'text-primary';
+    
+            renderInputWithButton({ buttonIconClassName: className });
+    
+            const icon = screen.getByRole('button');
+    
+            expect(icon).toHaveClass(className);
+        })
     })
 })
