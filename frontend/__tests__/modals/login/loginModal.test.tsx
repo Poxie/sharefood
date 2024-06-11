@@ -54,10 +54,6 @@ describe('LoginModal', () => {
     }
 
     describe('Structure and validation', () => {
-        beforeEach(() => {
-            jest.spyOn(useLoginUser, 'default').mockReturnValue({} as MutationOverrides);
-        })
-
         describe('Rendering the form', () => {
             beforeEach(() => {
                 renderWithQueryClient();
