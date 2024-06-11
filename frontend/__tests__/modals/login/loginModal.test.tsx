@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import LoginModal from '@/modals/login';
-import { QueryWrapper, fireEvent, render, screen, waitFor } from '@/test-utils';
+import { QueryWrapper, fireEvent, getButton, render, screen, updateInput, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import * as useLoginUser from '@/hooks/users/useLoginUser';
 import { UseMutationResult } from '@tanstack/react-query';
@@ -33,15 +33,9 @@ describe('LoginModal', () => {
     const getFormElements = () => {
         const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
         const passwordInput = screen.getByPlaceholderText(messages.modal.login.placeholder.password);
-        const submitButton = screen.getByRole('button', { name: messages.modal.login.submit });
+        const submitButton = getButton(messages.modal.login.submit);
 
         return { usernameInput, passwordInput, submitButton };
-    }
-    const updateInput = (input: HTMLElement, value: string) => {
-        fireEvent.change(input, { target: { value } });
-    }
-    const getButton = (text: string) => {
-        return screen.getByRole('button', { name: text });
     }
 
     const submitValidForm = () => {
