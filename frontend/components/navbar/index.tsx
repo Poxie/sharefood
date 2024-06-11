@@ -18,6 +18,7 @@ export default function Navbar() {
                             height={14}
                             src="/logo.svg"
                             alt="Logo"
+                            priority
                         />
                     </Link>
                     <NavbarTabs />
