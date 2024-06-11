@@ -1,11 +1,15 @@
 import { User } from "@/types"
+import Link from "next/link";
 
 export default function NavbarUser({ user }: {
     user: User;
 }) {
     return(
-        <span data-testid="navbar-user">
+        <Link 
+            data-testid="navbar-user"
+            href={`/profile/${user.id}`}
+        >
             {user.username}
-        </span>
+        </Link>
     )
 }
