@@ -80,6 +80,14 @@ describe('ModalProvider', () => {
             const modal = screen.queryByTestId('modal');
             expect(modal).not.toBeInTheDocument();
         })
+        it('closes the modal when the escape key is pressed', () => {
+            openModal();
+    
+            fireEvent.keyDown(document, { key: 'Escape' });
+    
+            const modal = screen.queryByTestId('modal');
+            expect(modal).not.toBeInTheDocument();
+        })
         it('prevents scrolling when a modal is open', () => {
             openModal();
     

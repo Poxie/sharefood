@@ -23,16 +23,26 @@ export default function ModalProvider({ children }: {
         modalElement: React.ReactNode;
     }>(null);
 
+    const closeOnKeyPress = (e: KeyboardEvent) => {
+        if(e.key === 'Escape') {
+            closeModal();
+        }
+    }
+
     const _setModal = (modal: React.ReactNode) => {
         setModal({
             id: Math.random().toString(),
             modalElement: modal,
         });
         document.body.style.overflow = 'hidden';
+
+        document.addEventListener('keydown', closeOnKeyPress);
     }
     const closeModal = () => {
         setModal(null);
         document.body.style.overflow = '';
+
+        document.removeEventListener('keydown', closeOnKeyPress);
     }
 
     const value = {
