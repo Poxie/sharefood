@@ -147,17 +147,8 @@ describe('LoginModal', () => {
 
             renderWithQueryClient();
 
-            const { usernameInput, passwordInput } = getFormElements();
-    
-            const username = 'username';
-            const password = 'password';
-
-            updateInput(usernameInput, username);
-            updateInput(passwordInput, password);
-    
-            const button = getButton(messages.modal.login.submit)
-            fireEvent.click(button);
-    
+            const { username, password } = submitValidForm();
+            
             expect(mutateFn).toHaveBeenCalledWith({ username, password });
         })
         it('should display the loading text while the login request is pending', () => {
@@ -200,16 +191,7 @@ describe('LoginModal', () => {
 
             renderWithQueryClient();
 
-            const { usernameInput, passwordInput } = getFormElements();
-            
-            const username = 'username';
-            const password = 'password';
-
-            updateInput(usernameInput, username);
-            updateInput(passwordInput, password);
-
-            const button = getButton(messages.modal.login.submit)
-            fireEvent.click(button);
+            submitValidForm();
 
             await waitFor(() => expect(closeModalFn).toHaveBeenCalled());
         })
