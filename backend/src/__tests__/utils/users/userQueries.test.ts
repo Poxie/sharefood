@@ -5,6 +5,11 @@ import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 
 describe('userQueries', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.restoreAllMocks();
+    })
+
     describe('isAdmin', () => {
         it('should return true if the user is an admin', async () => {
             const user = mockUser({ props: { isAdmin: true } });
@@ -28,6 +33,26 @@ describe('userQueries', () => {
             prismaMock.user.findUnique.mockResolvedValue(null);
 
             await expect(UserQueries.isAdmin('id')).rejects.toThrow(new UserNotFoundError());
+        })
+    })
+
+    describe('getUserByUsername', () => {
+        it('returns a user object if found', async () => {
+            const user = mockUser();
+
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const foundUser = await UserQueries.getUserByUsername(user.username);
+
+            expect(foundUser).toEqual(user);
+            expect(foundUser).not.toHaveProperty('password');
+        })
+        it('returns null if the user is not found', async () => {
+            prismaMock.user.findUnique.mockResolvedValue(null);
+
+            const user = await UserQueries.getUserByUsername('username');
+
+            expect(user).toBeNull();
         })
     })
 })

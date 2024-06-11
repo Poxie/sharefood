@@ -1,9 +1,11 @@
 import { User } from "@prisma/client";
 
-export const mockUser: ({ props, excludedFields }: {
-    props: Partial<User>;
+export const mockUser: (args?: {
+    props?: Partial<User>;
     excludedFields?: (keyof User)[];
-}) => User = ({ props, excludedFields=['password'] }) => {
+}) => User = (args) => {
+    const { props={}, excludedFields=['password'] } = args || {};
+    
     const user = {
         id: '1',
         username: 'test',
@@ -12,6 +14,7 @@ export const mockUser: ({ props, excludedFields }: {
         isAdmin: false,
         ...props,
     }
+
     return excludedFields.reduce((acc, field) => {
         delete acc[field];
         return acc;
