@@ -42,6 +42,8 @@
                 "username": "Username",
                 "password": "Password"
             },
+            "showPassword": "Show password",
+            "hidePassword": "Hide password",
             "submit": "Log in",
             "submitting": "Logging in...",
             "switchToSignup": "Don't have an account? Sign up instead."

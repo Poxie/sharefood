@@ -99,20 +99,19 @@ describe('LoginModal', () => {
         })
 
         describe('Show/hide password', () => {
-            const getHidePasswordButton = () => screen.getByTestId('input-submit-icon');
+            beforeEach(() => {
+                renderWithQueryClient();
+            })
+
+            const getButton = () => screen.getByTestId('input-submit-icon');
 
             it('should render a button to show/hide the password', () => {
-                renderWithQueryClient();
-
-                const button = getHidePasswordButton();
-
+                const button = getButton();
                 expect(button).toBeInTheDocument();
             })
             it('should toggle the password visibility when the button is clicked', () => {
-                renderWithQueryClient();
-
-                const button = getHidePasswordButton();
                 const { passwordInput } = getFormElements();
+                const button = getButton();
 
                 fireEvent.click(button);
 
@@ -121,6 +120,20 @@ describe('LoginModal', () => {
                 fireEvent.click(button);
 
                 expect(passwordInput).toHaveAttribute('type', 'password');
+            })
+            describe('render the correct aria label', () => {
+                it(`when the state is hidden`, () => {
+                    const button = getButton();
+
+                    expect(button).toHaveAttribute('aria-label', messages.modal.login.showPassword);
+                })
+                it(`when the state is visible`, () => {
+                    const button = getButton();
+
+                    fireEvent.click(button);
+
+                    expect(button).toHaveAttribute('aria-label', messages.modal.login.hidePassword);
+                })
             })
         })
 

@@ -81,6 +81,11 @@ export default function LoginModal() {
                     placeholder={t('modal.login.placeholder.password')}
                     onChange={text => onChange('password', text)}
                     type={showPassword ? 'text' : 'password'}
+                    buttonAriaLabel={showPassword ? (
+                        t('modal.login.hidePassword')
+                    ) : (
+                        t('modal.login.showPassword')
+                    )}
                 />
                 {feedback && (
                     <Feedback {...feedback} />
