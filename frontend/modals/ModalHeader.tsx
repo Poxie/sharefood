@@ -18,6 +18,7 @@ export default function ModalHeader({ children }: {
                 aria-label="Close modal"
                 onClick={closeModal}
                 className="p-1.5 -m-1.5 hover:bg-tertiary rounded-md transition-colors"
+                autoFocus
             >
                 <CloseIcon className="w-6" />
             </button>
