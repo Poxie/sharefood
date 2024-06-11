@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import SignupModal from '@/modals/sign-up';
-import { QueryWrapper, fireEvent, render, renderHook, screen, waitFor } from '@/test-utils';
+import { QueryWrapper, fireEvent, render, renderHook, screen, updateInput, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import { User, UserCreateResponse } from '@/types';
 import * as Modals from '@/contexts/modal';
@@ -76,9 +76,9 @@ describe('SignupModal', () => {
                 const password = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
                 const confirmPassword = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
         
-                fireEvent.change(username, { target: { value: 'test' } });
-                fireEvent.change(password, { target: { value: 'password' } });
-                fireEvent.change(confirmPassword, { target: { value: 'password123' } });
+                updateInput(username, 'test');
+                updateInput(password, 'password');
+                updateInput(confirmPassword, 'password123');
         
                 const button = screen.getByRole('button', { name: messages.modal.signup.submit });
                 fireEvent.click(button);
@@ -132,9 +132,9 @@ describe('SignupModal', () => {
     
             const usernameValue = 'test';
             const passwordValue = 'password';
-            fireEvent.change(username, { target: { value: usernameValue } });
-            fireEvent.change(password, { target: { value: passwordValue } });
-            fireEvent.change(confirmPassword, { target: { value: passwordValue } });
+            updateInput(username, usernameValue);
+            updateInput(password, passwordValue);
+            updateInput(confirmPassword, passwordValue);
     
             const button = screen.getByRole('button', { name: messages.modal.signup.submit });
             fireEvent.click(button);
