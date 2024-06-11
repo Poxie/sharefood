@@ -79,7 +79,10 @@ export default function LoginModal() {
                 {error && (
                     <Feedback type="danger" message={error.message} />
                 )}
-                <Button disabled={isPending}>
+                <Button 
+                    disabled={isPending}
+                    className="mt-1 py-4"
+                >
                     {!isPending ? (
                         t('modal.login.submit')
                         ) : (
@@ -87,7 +90,7 @@ export default function LoginModal() {
                     )}
                 </Button>
             </form>
-            <div className="p-5 flex justify-center bg-secondary">
+            <div className="p-5 flex justify-center bg-secondary rounded-b-lg">
                 <button 
                     className="text-sm hover:underline"
                     onClick={switchToSignup}
