@@ -148,7 +148,7 @@ describe('LoginModal', () => {
             renderWithQueryClient();
 
             const { username, password } = submitValidForm();
-            
+
             expect(mutateFn).toHaveBeenCalledWith({ username, password });
         })
         it('should display the loading text while the login request is pending', () => {
@@ -167,14 +167,16 @@ describe('LoginModal', () => {
             const button = getButton(messages.modal.login.submitting);
             expect(button).toBeDisabled();
         })
-        it('should display an error message if the login request fails', () => {
+        it('should display an error message if the login request fails', async () => {
             const error = new Error('Invalid username or password.');
-            mockUseLoginUser({ isError: true, error });
+
+            mockUseLoginUser({ mutateAsync: jest.fn().mockRejectedValue(error) });
 
             renderWithQueryClient();
 
-            const errorMessage = screen.getByText(error.message);
-            expect(errorMessage).toBeInTheDocument();
+            submitValidForm();
+
+            await waitFor(() => expect(screen.getByText(error.message)).toBeInTheDocument());
         })
         it('should force close the modal if the login request is successful', async () => {
             const closeModalFn = jest.fn();

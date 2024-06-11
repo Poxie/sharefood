@@ -17,7 +17,7 @@ export default function LoginModal() {
 
     const { setModal, closeModal } = useModal();
 
-    const { mutateAsync, isPending, error } = useLoginUser();
+    const { mutateAsync, isPending } = useLoginUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -51,7 +51,10 @@ export default function LoginModal() {
             refetchQuery(['current-user']);
             closeModal();
         } catch(error) {
-            console.error(error);
+            setFeedback({
+                type: 'danger',
+                message: (error as Error).message,
+            })
         }
     }
 
@@ -75,9 +78,6 @@ export default function LoginModal() {
                 />
                 {feedback && (
                     <Feedback {...feedback} />
-                )}
-                {error && (
-                    <Feedback type="danger" message={error.message} />
                 )}
                 <Button 
                     disabled={isPending}
