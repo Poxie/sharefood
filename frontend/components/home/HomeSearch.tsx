@@ -18,7 +18,7 @@ export default function HomeSearch() {
                 className="text-lg"
                 placeholder={t('search.placeholder')}
                 icon={<SearchIcon className="w-5" />}
-                submitIcon={<SendIcon className="w-7" />}
+                buttonIcon={<SendIcon className="w-7" />}
             />
         </div>
     )
