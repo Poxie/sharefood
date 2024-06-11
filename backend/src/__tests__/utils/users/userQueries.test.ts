@@ -1,5 +1,5 @@
 import UserQueries from '@/utils/users/userQueries';
-import { mockUser } from '../../../../test-utils';
+import { exclude, mockUser } from '../../../../test-utils';
 import { prismaMock } from '../../../../singleton';
 import { PRISMA_ERROR_CODES } from '@/errors/errorCodes';
 import UserNotFoundError from '@/errors/UserNotFoundError';
@@ -44,8 +44,7 @@ describe('userQueries', () => {
 
             const foundUser = await UserQueries.getUserByUsername(user.username);
 
-            expect(foundUser).toEqual(user);
-            expect(foundUser).not.toHaveProperty('password');
+            expect(foundUser).toEqual(exclude(user, ['password']));
         })
         it('returns null if the user is not found', async () => {
             prismaMock.user.findUnique.mockResolvedValue(null);
@@ -64,8 +63,7 @@ describe('userQueries', () => {
 
             const foundUser = await UserQueries.getUserById(user.id);
 
-            expect(foundUser).toEqual(user);
-            expect(foundUser).not.toHaveProperty('password');
+            expect(foundUser).toEqual(exclude(user, ['password']));
         })
         it('returns null if the user is not found', async () => {
             prismaMock.user.findUnique.mockResolvedValue(null);

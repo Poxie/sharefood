@@ -4,7 +4,7 @@ export const mockUser: (args?: {
     props?: Partial<User>;
     excludedFields?: (keyof User)[];
 }) => User = (args) => {
-    const { props={}, excludedFields=['password'] } = args || {};
+    const { props={}, excludedFields=[] } = args || {};
     
     const user = {
         id: '1',
