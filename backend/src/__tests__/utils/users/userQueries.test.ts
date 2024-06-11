@@ -55,4 +55,24 @@ describe('userQueries', () => {
             expect(user).toBeNull();
         })
     })
+
+    describe('getUserById', () => {
+        it('returns a user object if found', async () => {
+            const user = mockUser();
+
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const foundUser = await UserQueries.getUserById(user.id);
+
+            expect(foundUser).toEqual(user);
+            expect(foundUser).not.toHaveProperty('password');
+        })
+        it('returns null if the user is not found', async () => {
+            prismaMock.user.findUnique.mockResolvedValue(null);
+
+            const user = await UserQueries.getUserById('id');
+
+            expect(user).toBeNull();
+        })
+    })
 })
