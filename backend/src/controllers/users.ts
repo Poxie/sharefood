@@ -29,6 +29,17 @@ router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) 
     }
 });
 
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    try {
+        const user = await Users.getUserById(id);
+        res.send(user);
+    } catch(error) {
+        next(error);
+    }
+})
+
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const { username, password } = req.body;
 

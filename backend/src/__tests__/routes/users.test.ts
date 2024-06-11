@@ -81,6 +81,32 @@ describe('Users Routes', () => {
             expect(response.body).toEqual({ message: new UserNotFoundError().message });
         })
     })
+
+    describe('GET /users/:id', () => {
+        const user = mockUser(['password']);
+
+        it('should return the user with the matching id', async () => {
+            const spy = jest.spyOn(Users, 'getUserById').mockResolvedValue(user);
+
+            const response = await request.get(`/users/${user.id}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(user);
+            expect(spy).toHaveBeenCalledWith(user.id);
+        })
+        it('should return a 404 status code if the user does not exist', async () => {
+            const id = 'nonexistant';
+            const error = new UserNotFoundError();
+
+            jest.spyOn(Users, 'getUserById').mockRejectedValue(error);
+
+            const response = await request.get(`/users/${id}`);
+
+            expect(response.status).toBe(ERROR_CODES.NOT_FOUND);
+            expect(response.body).toEqual({ message: error.message });
+        })
+    })
+
     describe('POST /users', () => {
         const user = mockUser(['password']);
 
