@@ -69,4 +69,38 @@ describe('userMutations', () => {
             await expect(UserMutations.deleteUser(userId)).rejects.toThrow(new UserNotFoundError());
         })
     })
+
+    describe('updateUser', () => {
+        it('throws an error if the user does not exist', async () => {
+            const userId = 'invalidid';
+            const data = { username: 'newusername' };
+
+            prismaMock.user.update.mockRejectedValue({ code: PRISMA_ERROR_CODES.RECORD_NOT_FOUND });
+
+            await expect(UserMutations.updateUser(userId, data)).rejects.toThrow(new UserNotFoundError());
+        })
+        describe.each([
+            { username: 'newusername' },
+            { password: 'newhashedpassword' },
+            { isAdmin: true },
+        ])('updates the user properties and returns the new user object', (data) => {
+            const prop = Object.keys(data)[0];
+
+            it(`updates the user ${prop} property`, async () => {
+                const user = mockUser();
+    
+                const newUser = {...user, ...data};
+    
+                const prismaSpy = prismaMock.user.update.mockResolvedValue(newUser);
+    
+                const updatedUser = await UserMutations.updateUser(user.id, data);
+    
+                expect(updatedUser).toEqual(exclude(newUser, ['password']));
+                expect(prismaSpy).toHaveBeenCalledWith({ 
+                    where: { id: user.id }, 
+                    data: { ...data } 
+                });
+            })
+        })
+    })
 })
