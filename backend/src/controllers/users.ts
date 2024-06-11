@@ -6,7 +6,7 @@ import ArgumentMissingError from '@/errors/ArgumentMissingError';
 import { signToken, verifyToken } from '@/utils/auth';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import UnauthorizedError from '@/errors/UnauthorizedError';
-import auth from '@/middleware/auth';
+import { auth } from '@/middleware/auth';
 import { ALLOWED_USER_FIELDS, COOKIE_AGE } from '@/utils/constants';
 import BadRequestError from '@/errors/BadRequestError';
 

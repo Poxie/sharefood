@@ -34,7 +34,7 @@ describe('Users Routes', () => {
         locals?: Partial<{ userId: string, isAdmin: boolean }>;
         error?: Error;
     }) => {
-        return jest.spyOn(AuthMiddleware, 'default').mockImplementation(async (req, res, next) => {
+        return jest.spyOn(AuthMiddleware, 'auth').mockImplementation(async (req, res, next) => {
             if(error) return next(error);
             Object.entries(locals).forEach(([key, value]) => {
                 res.locals[key] = value;
