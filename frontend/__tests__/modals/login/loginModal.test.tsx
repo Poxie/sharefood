@@ -98,6 +98,32 @@ describe('LoginModal', () => {
             })
         })
 
+        describe('Show/hide password', () => {
+            const getHidePasswordButton = () => screen.getByTestId('input-submit-icon');
+
+            it('should render a button to show/hide the password', () => {
+                renderWithQueryClient();
+
+                const button = getHidePasswordButton();
+
+                expect(button).toBeInTheDocument();
+            })
+            it('should toggle the password visibility when the button is clicked', () => {
+                renderWithQueryClient();
+
+                const button = getHidePasswordButton();
+                const { passwordInput } = getFormElements();
+
+                fireEvent.click(button);
+
+                expect(passwordInput).toHaveAttribute('type', 'text');
+
+                fireEvent.click(button);
+
+                expect(passwordInput).toHaveAttribute('type', 'password');
+            })
+        })
+
         describe('Switching to the signup modal', () => {
             it('should render a button to switch to the signup modal', () => {
                 renderWithQueryClient();

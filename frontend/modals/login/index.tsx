@@ -9,6 +9,8 @@ import useLoginUser from "@/hooks/users/useLoginUser";
 import { useModal } from "@/contexts/modal";
 import SignupModal from "../sign-up";
 import useRefetchQueries from "@/hooks/react-query/useRefetchQueries";
+import EyeIcon from "@/assets/icons/EyeIcon";
+import EyeOffIcon from "@/assets/icons/EyeOffIcon";
 
 export default function LoginModal() {
     const t = useTranslations();
@@ -19,12 +21,14 @@ export default function LoginModal() {
 
     const { mutateAsync, isPending } = useLoginUser();
 
+    const [showPassword, setShowPassword] = useState(false);
     const [info, setInfo] = useState({
         username: '',
         password: '',
     })
     const [feedback, setFeedback] = useState<null | FeedbackProps>(null);
 
+    const togglePasswordVisibility = () => setShowPassword(prev => !prev);
     const switchToSignup = () => setModal(<SignupModal />);
 
     const onChange = (key: keyof typeof info, value: string) => {
@@ -72,9 +76,11 @@ export default function LoginModal() {
                     onChange={text => onChange('username', text)}
                 />
                 <Input 
+                    onButtonClick={togglePasswordVisibility}
+                    buttonIcon={showPassword ? <EyeOffIcon className="w-6" /> : <EyeIcon className="w-6" />}
                     placeholder={t('modal.login.placeholder.password')}
                     onChange={text => onChange('password', text)}
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                 />
                 {feedback && (
                     <Feedback {...feedback} />
