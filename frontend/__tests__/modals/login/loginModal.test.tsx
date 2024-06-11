@@ -9,6 +9,7 @@ import * as Modals from '@/contexts/modal';
 import SignupModal from '@/modals/sign-up';
 import * as useCreateUser from '@/hooks/users/useCreateUser';
 import mockUser from '@/test-constants';
+import * as useRefetchQueries from '@/hooks/react-query/useRefetchQueries';
 
 type MutationOverrides = UseMutationResult<User, Error, {
     username: string;
@@ -20,6 +21,14 @@ describe('LoginModal', () => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
     })
+
+    const renderWithQueryClient = () => {
+        render(
+            <QueryWrapper>
+                <LoginModal />
+            </QueryWrapper>
+        );
+    }
 
     const getFormElements = () => {
         const usernameInput = screen.getByPlaceholderText(messages.modal.login.placeholder.username);
@@ -35,6 +44,21 @@ describe('LoginModal', () => {
         return screen.getByRole('button', { name: text });
     }
 
+    const submitValidForm = () => {
+        const { usernameInput, passwordInput } = getFormElements();
+
+        const username = 'username';
+        const password = 'password';
+
+        updateInput(usernameInput, username);
+        updateInput(passwordInput, password);
+
+        const button = getButton(messages.modal.login.submit)
+        fireEvent.click(button);
+
+        return { username, password };
+    }
+
     describe('Structure and validation', () => {
         beforeEach(() => {
             jest.spyOn(useLoginUser, 'default').mockReturnValue({} as MutationOverrides);
@@ -42,7 +66,7 @@ describe('LoginModal', () => {
 
         describe('Rendering the form', () => {
             beforeEach(() => {
-                render(<LoginModal />);
+                renderWithQueryClient();
             })
     
             it('should render the login modal', () => {
@@ -87,7 +111,7 @@ describe('LoginModal', () => {
 
         describe('Switching to the signup modal', () => {
             it('should render a button to switch to the signup modal', () => {
-                render(<LoginModal />);
+                renderWithQueryClient();
                 const button = getButton(messages.modal.login.switchToSignup);
                 expect(button).toBeInTheDocument();
             })
@@ -100,7 +124,7 @@ describe('LoginModal', () => {
                     closeModal: jest.fn(),
                 });
                 
-                render(<LoginModal />);
+                renderWithQueryClient();
     
                 const button = getButton(messages.modal.login.switchToSignup);
                 fireEvent.click(button);
@@ -121,7 +145,7 @@ describe('LoginModal', () => {
             const mutateFn = jest.fn();
             mockUseLoginUser({ mutateAsync: mutateFn });
 
-            render(<LoginModal />)
+            renderWithQueryClient();
 
             const { usernameInput, passwordInput } = getFormElements();
     
@@ -139,7 +163,7 @@ describe('LoginModal', () => {
         it('should display the loading text while the login request is pending', () => {
             mockUseLoginUser({ isPending: true });
 
-            render(<LoginModal />);
+            renderWithQueryClient();
 
             const loading = getButton(messages.modal.login.submitting);
             expect(loading).toBeInTheDocument();
@@ -147,7 +171,7 @@ describe('LoginModal', () => {
         it('should disable the login button while the login request is pending', () => {
             mockUseLoginUser({ isPending: true });
 
-            render(<LoginModal />);
+            renderWithQueryClient();
 
             const button = getButton(messages.modal.login.submitting);
             expect(button).toBeDisabled();
@@ -156,7 +180,7 @@ describe('LoginModal', () => {
             const error = new Error('Invalid username or password.');
             mockUseLoginUser({ isError: true, error });
 
-            render(<LoginModal />);
+            renderWithQueryClient();
 
             const errorMessage = screen.getByText(error.message);
             expect(errorMessage).toBeInTheDocument();
@@ -174,11 +198,7 @@ describe('LoginModal', () => {
                 mutateAsync: mutateFn,
             });
 
-            render(
-                <QueryWrapper>
-                    <LoginModal />
-                </QueryWrapper>
-            );
+            renderWithQueryClient();
 
             const { usernameInput, passwordInput } = getFormElements();
             
@@ -192,6 +212,21 @@ describe('LoginModal', () => {
             fireEvent.click(button);
 
             await waitFor(() => expect(closeModalFn).toHaveBeenCalled());
+        })
+        it('should refetch react query getCurrentUser on successful login', async () => {
+            const refetchFn = jest.fn();
+            jest.spyOn(useRefetchQueries, 'default').mockReturnValue(refetchFn);
+
+            const user = mockUser();
+
+            const mutateFn = jest.fn().mockResolvedValue(user);
+            mockUseLoginUser({ mutateAsync: mutateFn });
+
+            renderWithQueryClient();
+
+            submitValidForm();
+
+            await waitFor(() => expect(refetchFn).toHaveBeenCalledWith(['current-user']));
         })
     })
 })

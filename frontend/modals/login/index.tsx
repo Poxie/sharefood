@@ -8,9 +8,12 @@ import Feedback, { FeedbackProps } from "@/components/feedback";
 import useLoginUser from "@/hooks/users/useLoginUser";
 import { useModal } from "@/contexts/modal";
 import SignupModal from "../sign-up";
+import useRefetchQueries from "@/hooks/react-query/useRefetchQueries";
 
 export default function LoginModal() {
     const t = useTranslations();
+
+    const refetchQuery = useRefetchQueries();
 
     const { setModal, closeModal } = useModal();
 
@@ -45,6 +48,7 @@ export default function LoginModal() {
 
         try {
             await mutateAsync({ username, password });
+            refetchQuery(['current-user']);
             closeModal();
         } catch(error) {
             console.error(error);
