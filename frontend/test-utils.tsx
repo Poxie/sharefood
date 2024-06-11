@@ -23,8 +23,11 @@ const customRender = (
 export * from '@testing-library/react';
 export { customRender as render }; 
 
-export const QueryWrapper = ({ children }: { children: React.ReactNode }) => {
-    const queryClient = new QueryClient();
+export const QueryWrapper = ({ children, defaultClient }: { 
+    children: React.ReactNode;
+    defaultClient?: QueryClient
+}) => {
+    const queryClient = defaultClient || new QueryClient();
     
     return(
         <QueryClientProvider client={queryClient}>
