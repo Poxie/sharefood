@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import SignupModal from '@/modals/sign-up';
-import { QueryWrapper, fireEvent, render, renderHook, screen, updateInput, waitFor } from '@/test-utils';
+import { QueryWrapper, fireEvent, getButton, render, renderHook, screen, updateInput, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import { User, UserCreateResponse } from '@/types';
 import * as Modals from '@/contexts/modal';
@@ -16,6 +16,7 @@ type MutationOverrides = UseMutationResult<UserCreateResponse, Error, {
 describe('SignupModal', () => {
     afterEach(() => {
         jest.clearAllMocks();
+        jest.restoreAllMocks();
     })
 
     const renderWithQueryClient = () => {
@@ -24,6 +25,15 @@ describe('SignupModal', () => {
                 <SignupModal />
             </QueryWrapper>
         )
+    }
+
+    const getFormElements = () => {
+        const usernameInput = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
+        const passwordInput = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
+        const confirmPasswordInput = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
+        const submitButton = getButton(messages.modal.signup.submit);
+
+        return { usernameInput, passwordInput, confirmPasswordInput, submitButton };
     }
 
     describe('Structure and validation', () => {
@@ -46,42 +56,39 @@ describe('SignupModal', () => {
                 expect(form).toBeInTheDocument();
             })
             it('should render the username input', () => {
-                const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
-                expect(input).toBeInTheDocument();
+                const { usernameInput } = getFormElements();
+                expect(usernameInput).toBeInTheDocument();
             })
             it('should render the password input', () => {
-                const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
-                expect(input).toBeInTheDocument();
-                expect(input).toHaveAttribute('type', 'password');
+                const { passwordInput } = getFormElements();
+                expect(passwordInput).toBeInTheDocument();
+                expect(passwordInput).toHaveAttribute('type', 'password');
             })
             it('should render the confirm password input', () => {
-                const input = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
-                expect(input).toBeInTheDocument();
-                expect(input).toHaveAttribute('type', 'password');
+                const { confirmPasswordInput } = getFormElements();
+                expect(confirmPasswordInput).toBeInTheDocument();
+                expect(confirmPasswordInput).toHaveAttribute('type', 'password');
             })
             it('should render the submit button', () => {
-                const button = screen.getByRole('button', { name: messages.modal.signup.submit });
-                expect(button).toBeInTheDocument();
+                const { submitButton } = getFormElements()
+                expect(submitButton).toBeInTheDocument();
             })
             it('should should show an error if the form is submitted with empty fields', () => {
-                const button = screen.getByRole('button', { name: messages.modal.signup.submit });
-                fireEvent.click(button);
+                const { submitButton } = getFormElements()
+                fireEvent.click(submitButton);
         
                 const error = screen.getByText(messages.error.emptyFields);
         
                 expect(error).toBeInTheDocument();
             })
             it('should show an error if the passwords do not match', () => {
-                const username = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
-                const password = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
-                const confirmPassword = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
+                const { usernameInput, passwordInput, confirmPasswordInput, submitButton } = getFormElements();
         
-                updateInput(username, 'test');
-                updateInput(password, 'password');
-                updateInput(confirmPassword, 'password123');
+                updateInput(usernameInput, 'test');
+                updateInput(passwordInput, 'password');
+                updateInput(confirmPasswordInput, 'password123');
         
-                const button = screen.getByRole('button', { name: messages.modal.signup.submit });
-                fireEvent.click(button);
+                fireEvent.click(submitButton);
         
                 const error = screen.getByText(messages.error.passwordsDontMatch);
         
@@ -93,7 +100,7 @@ describe('SignupModal', () => {
             it('should render a button to switch to the login modal', () => {
                 renderWithQueryClient();
 
-                const button = screen.getByRole('button', { name: messages.modal.signup.switchToLogin });
+                const button = getButton(messages.modal.signup.switchToLogin);
                 expect(button).toBeInTheDocument();
             })
             it('should call the switchToLogin function when the button is clicked', () => {
@@ -105,7 +112,7 @@ describe('SignupModal', () => {
 
                 renderWithQueryClient();
 
-                const button = screen.getByRole('button', { name: messages.modal.signup.switchToLogin });
+                const button = getButton(messages.modal.signup.switchToLogin);
                 fireEvent.click(button);
 
                 expect(switchToLoginFn).toHaveBeenCalledWith(<LoginModal />);
@@ -126,18 +133,15 @@ describe('SignupModal', () => {
     
             renderWithQueryClient();
             
-            const username = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
-            const password = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
-            const confirmPassword = screen.getByPlaceholderText(messages.modal.signup.placeholder.confirmPassword);
+            const { usernameInput, passwordInput, confirmPasswordInput, submitButton } = getFormElements();
     
             const usernameValue = 'test';
             const passwordValue = 'password';
-            updateInput(username, usernameValue);
-            updateInput(password, passwordValue);
-            updateInput(confirmPassword, passwordValue);
+            updateInput(usernameInput, usernameValue);
+            updateInput(passwordInput, passwordValue);
+            updateInput(confirmPasswordInput, passwordValue);
     
-            const button = screen.getByRole('button', { name: messages.modal.signup.submit });
-            fireEvent.click(button);
+            fireEvent.click(submitButton);
     
             expect(createUserFunction).toHaveBeenCalledWith({ username: usernameValue, password: passwordValue });
         })
@@ -146,7 +150,7 @@ describe('SignupModal', () => {
     
             renderWithQueryClient();
     
-            const loading = screen.getByText(messages.modal.signup.submitting);
+            const loading = getButton(messages.modal.signup.submitting);
     
             expect(loading).toBeInTheDocument();
         })
@@ -155,7 +159,7 @@ describe('SignupModal', () => {
     
             renderWithQueryClient();
     
-            const button = screen.getByRole('button', { name: messages.modal.signup.submitting });
+            const button = getButton(messages.modal.signup.submitting);
     
             expect(button).toBeDisabled();
         })
