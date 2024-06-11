@@ -1,28 +1,29 @@
 import '@testing-library/jest-dom';
 import SignupModal from '@/modals/sign-up';
-import { fireEvent, render, renderHook, screen, waitFor } from '@/test-utils';
+import { QueryWrapper, fireEvent, render, renderHook, screen, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import * as useCreateUser from '@/hooks/users/useCreateUser';
-import mockUser from '@/test-constants';
 import { UserCreateResponse } from '@/types';
 import * as Modals from '@/contexts/modal';
 import LoginModal from '@/modals/login';
-
-jest.mock('@/hooks/users/useCreateUser', () => jest.fn().mockReturnValue({
-    createUser: jest.fn(),
-    isPending: false,
-    isError: false,
-}));
 
 describe('SignupModal', () => {
     afterEach(() => {
         jest.clearAllMocks();
     })
 
+    const renderWithQueryClient = () => {
+        render(
+            <QueryWrapper>
+                <SignupModal />
+            </QueryWrapper>
+        )
+    }
+
     describe('Structure and validation', () => {
         describe('Rendering the form', () => {
             beforeEach(() => {
-                render(<SignupModal />);
+                renderWithQueryClient();
             })
     
             it('should render a modal', () => {
@@ -84,7 +85,7 @@ describe('SignupModal', () => {
 
         describe('Switching to login modal', () => {
             it('should render a button to switch to the login modal', () => {
-                render(<SignupModal />);
+                renderWithQueryClient();
 
                 const button = screen.getByRole('button', { name: messages.modal.signup.switchToLogin });
                 expect(button).toBeInTheDocument();
@@ -96,7 +97,7 @@ describe('SignupModal', () => {
                     closeModal: jest.fn(),
                 });
 
-                render(<SignupModal />);
+                renderWithQueryClient();
 
                 const button = screen.getByRole('button', { name: messages.modal.signup.switchToLogin });
                 fireEvent.click(button);
@@ -133,7 +134,7 @@ describe('SignupModal', () => {
             const createUserFunction = jest.fn();
             mockCreateUser({ createUser: createUserFunction });
     
-            render(<SignupModal />);
+            renderWithQueryClient();
             
             const username = screen.getByPlaceholderText(messages.modal.signup.placeholder.username);
             const password = screen.getByPlaceholderText(messages.modal.signup.placeholder.password);
@@ -153,7 +154,7 @@ describe('SignupModal', () => {
         it('should show loading state when the form is submitted', () => {
             mockCreateUser({ isPending: true });
     
-            render(<SignupModal />);
+            renderWithQueryClient();
     
             const loading = screen.getByText(messages.modal.signup.submitting);
     
@@ -162,7 +163,7 @@ describe('SignupModal', () => {
         it('should have a disabled submit button when the form is submitting', () => {
             mockCreateUser({ isPending: true });
     
-            render(<SignupModal />);
+            renderWithQueryClient();
     
             const button = screen.getByRole('button', { name: messages.modal.signup.submitting });
     
@@ -172,7 +173,7 @@ describe('SignupModal', () => {
             const errorMessage = 'An error occurred';
             mockCreateUser({ isError: true, error: new Error(errorMessage) });
     
-            render(<SignupModal />);
+            renderWithQueryClient();
     
             const error = screen.getByText(errorMessage);
     
