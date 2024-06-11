@@ -17,7 +17,7 @@ export default function SignupModal() {
 
     const { setModal, closeModal } = useModal();
 
-    const { isPending, mutateAsync, error } = useCreateUser();
+    const { isPending, mutateAsync } = useCreateUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -61,7 +61,10 @@ export default function SignupModal() {
             refetch(['current-user']);
             closeModal();
         } catch(error) {
-            console.error(error);
+            setFeedback({
+                message: (error as Error).message,
+                type: 'danger',
+            })
         }
     }
     
@@ -94,12 +97,6 @@ export default function SignupModal() {
                 />
                 {feedback && (
                     <Feedback {...feedback} />
-                )}
-                {error && (
-                    <Feedback 
-                        message={error.message}
-                        type="danger"
-                    />
                 )}
                 <Button 
                     className="mt-1 py-4"

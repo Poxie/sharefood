@@ -171,15 +171,15 @@ describe('SignupModal', () => {
     
             expect(button).toBeDisabled();
         })
-        it('should show an error if the form submission fails', () => {
-            const errorMessage = 'An error occurred';
-            mockUseCreateUser({ isError: true, error: new Error(errorMessage) });
+        it('should show an error if the form submission fails', async () => {
+            const error = new Error('Username is already taken.');
+            mockUseCreateUser({ mutateAsync: jest.fn().mockRejectedValue(error) });
     
             renderWithQueryClient();
     
-            const error = screen.getByText(errorMessage);
-    
-            expect(error).toBeInTheDocument();
+            submitValidForm();
+
+            await waitFor(() => expect(screen.getByText(error.message)).toBeInTheDocument());
         })
         it('should close the modal when the form submission is successful', async () => {
             const closeModalFn = jest.fn();
