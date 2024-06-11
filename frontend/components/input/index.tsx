@@ -2,7 +2,7 @@
 import { InputHTMLAttributes, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, buttonIcon, buttonIconClassName, onButtonClick, containerClassName, type="text" }: {
+export default function Input({ onChange, onSubmit, placeholder, defaultValue, className, icon, iconClassName, buttonIcon, buttonIconClassName, buttonAriaLabel, onButtonClick, containerClassName, type="text" }: {
     onChange?: (text: string) => void;
     onSubmit?: (text: string) => void;
     className?: string;
@@ -11,6 +11,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
     iconClassName?: string;
     buttonIcon?: React.ReactElement;
     buttonIconClassName?: string;
+    buttonAriaLabel?: string;
     onButtonClick?: () => void;
     containerClassName?: string;
     defaultValue?: string;
@@ -69,6 +70,7 @@ export default function Input({ onChange, onSubmit, placeholder, defaultValue, c
             {buttonIcon && (
                 <button 
                     data-testid="input-submit-icon"
+                    aria-label={buttonAriaLabel}
                     className={twMerge(
                         "[--from-edge:1rem] absolute top-2/4 -translate-y-2/4 right-[calc(var(--from-edge)/2)] h-[calc(100%-var(--from-edge))] aspect-square flex items-center justify-center text-c-primary hover:bg-secondary transition-colors rounded-lg",
                         buttonIconClassName,

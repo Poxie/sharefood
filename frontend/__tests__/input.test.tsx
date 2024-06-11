@@ -127,6 +127,14 @@ describe('Input', () => {
     
             expect(icon).toBeInTheDocument();
         })
+        it('should render the aria label on the button icon if provided', () => {
+            const ariaLabel = 'Submitty';
+            renderInputWithButton({ buttonAriaLabel: ariaLabel });
+
+            const icon = getIconButton();
+
+            expect(icon).toHaveAttribute('aria-label', ariaLabel);
+        })
         it('should call the onSubmit function when the button icon is clicked and onButtonClick is not provided', () => {
             const onSubmit = jest.fn();
 
