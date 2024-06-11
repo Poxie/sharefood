@@ -1,4 +1,14 @@
 {
+    "navbar": {
+        "tabs": {
+            "home": "Home",
+            "explore": "Explore"
+        },
+        "buttons": {
+            "login": "Log in",
+            "signup": "Sign up"
+        }
+    },
     "home": {
         "hero": {
             "title": "The best place to share food",

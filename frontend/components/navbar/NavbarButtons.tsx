@@ -2,8 +2,11 @@ import SignupModal from "@/modals/sign-up";
 import Button from "../button";
 import { useModal } from "@/contexts/modal";
 import LoginModal from "@/modals/login";
+import { useTranslations } from "next-intl";
 
 export default function NavbarButtons() {
+    const t = useTranslations('navbar');
+
     const { setModal } = useModal();
 
     return(
@@ -13,13 +16,13 @@ export default function NavbarButtons() {
                 className="-my-3"
                 onClick={() => setModal(<LoginModal />)}
             >
-                Log in
+                {t('buttons.login')}
             </Button>
             <Button 
                 className="-my-3"
                 onClick={() => setModal(<SignupModal />)}
             >
-                Sign up
+                {t('buttons.signup')}
             </Button>
         </div>   
     )
