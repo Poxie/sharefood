@@ -46,6 +46,15 @@ describe('userQueries', () => {
 
             expect(foundUser).toEqual(exclude(user, ['password']));
         })
+        it('includes the password if withPassword is true', async () => {
+            const user = mockUser();
+
+            prismaMock.user.findUnique.mockResolvedValue(user);
+
+            const foundUser = await UserQueries.getUserByUsername(user.username, true);
+
+            expect(foundUser).toEqual(user);
+        })
         it('returns null if the user is not found', async () => {
             prismaMock.user.findUnique.mockResolvedValue(null);
 
