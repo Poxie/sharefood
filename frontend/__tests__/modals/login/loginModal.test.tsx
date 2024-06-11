@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import LoginModal from '@/modals/login';
-import { fireEvent, render, screen } from '@/test-utils';
+import { QueryWrapper, fireEvent, render, screen, waitFor } from '@/test-utils';
 import messages from '@/messages/en.json';
 import * as useLoginUser from '@/hooks/users/useLoginUser';
 import { UseMutationResult } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { User } from '@/types';
 import * as Modals from '@/contexts/modal';
 import SignupModal from '@/modals/sign-up';
 import * as useCreateUser from '@/hooks/users/useCreateUser';
+import mockUser from '@/test-constants';
 
 type MutationOverrides = UseMutationResult<User, Error, {
     username: string;
@@ -29,6 +30,9 @@ describe('LoginModal', () => {
     }
     const updateInput = (input: HTMLElement, value: string) => {
         fireEvent.change(input, { target: { value } });
+    }
+    const getButton = (text: string) => {
+        return screen.getByRole('button', { name: text });
     }
 
     describe('Structure and validation', () => {
@@ -57,7 +61,7 @@ describe('LoginModal', () => {
                 expect(passwordInput).toHaveAttribute('type', 'password');
             })
             it('should render the login button', () => {
-                const button = screen.getByRole('button', { name: messages.modal.login.submit });
+                const button = getButton(messages.modal.login.submit);
                 expect(button).toBeInTheDocument();
             })
             describe.each([
@@ -71,7 +75,7 @@ describe('LoginModal', () => {
                     updateInput(usernameInput, username);
                     updateInput(passwordInput, password);
         
-                    const button = screen.getByRole('button', { name: messages.modal.login.submit });
+                    const button = getButton(messages.modal.login.submit)
                     fireEvent.click(button);
         
                     const error = screen.getByText(messages.error.emptyFields);
@@ -84,7 +88,7 @@ describe('LoginModal', () => {
         describe('Switching to the signup modal', () => {
             it('should render a button to switch to the signup modal', () => {
                 render(<LoginModal />);
-                const button = screen.getByRole('button', { name: messages.modal.login.switchToSignup });
+                const button = getButton(messages.modal.login.switchToSignup);
                 expect(button).toBeInTheDocument();
             })
             it('should open the signup modal when the switch button is clicked', () => {
@@ -98,7 +102,7 @@ describe('LoginModal', () => {
                 
                 render(<LoginModal />);
     
-                const button = screen.getByRole('button', { name: messages.modal.login.switchToSignup });
+                const button = getButton(messages.modal.login.switchToSignup);
                 fireEvent.click(button);
     
                 expect(setModalFn).toHaveBeenCalledWith(<SignupModal />);
@@ -115,7 +119,7 @@ describe('LoginModal', () => {
 
         it('should call the login mutation on form submission', async () => {
             const mutateFn = jest.fn();
-            mockUseLoginUser({ mutate: mutateFn });
+            mockUseLoginUser({ mutateAsync: mutateFn });
 
             render(<LoginModal />)
 
@@ -127,7 +131,7 @@ describe('LoginModal', () => {
             updateInput(usernameInput, username);
             updateInput(passwordInput, password);
     
-            const button = screen.getByRole('button', { name: messages.modal.login.submit });
+            const button = getButton(messages.modal.login.submit)
             fireEvent.click(button);
     
             expect(mutateFn).toHaveBeenCalledWith({ username, password });
@@ -137,7 +141,7 @@ describe('LoginModal', () => {
 
             render(<LoginModal />);
 
-            const loading = screen.getByRole('button', { name: messages.modal.login.submitting });
+            const loading = getButton(messages.modal.login.submitting);
             expect(loading).toBeInTheDocument();
         })
         it('should disable the login button while the login request is pending', () => {
@@ -145,7 +149,7 @@ describe('LoginModal', () => {
 
             render(<LoginModal />);
 
-            const button = screen.getByRole('button', { name: messages.modal.login.submitting });
+            const button = getButton(messages.modal.login.submitting);
             expect(button).toBeDisabled();
         })
         it('should display an error message if the login request fails', () => {
@@ -156,6 +160,38 @@ describe('LoginModal', () => {
 
             const errorMessage = screen.getByText(error.message);
             expect(errorMessage).toBeInTheDocument();
+        })
+        it('should force close the modal if the login request is successful', async () => {
+            const closeModalFn = jest.fn();
+            jest.spyOn(Modals, 'useModal').mockReturnValue({ 
+                setModal: jest.fn(),
+                closeModal: closeModalFn,
+            });
+
+            const user = mockUser();
+            const mutateFn = jest.fn().mockResolvedValue(user);
+            mockUseLoginUser({ 
+                mutateAsync: mutateFn,
+            });
+
+            render(
+                <QueryWrapper>
+                    <LoginModal />
+                </QueryWrapper>
+            );
+
+            const { usernameInput, passwordInput } = getFormElements();
+            
+            const username = 'username';
+            const password = 'password';
+
+            updateInput(usernameInput, username);
+            updateInput(passwordInput, password);
+
+            const button = getButton(messages.modal.login.submit)
+            fireEvent.click(button);
+
+            await waitFor(() => expect(closeModalFn).toHaveBeenCalled());
         })
     })
 })

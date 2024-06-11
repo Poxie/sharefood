@@ -12,9 +12,9 @@ import SignupModal from "../sign-up";
 export default function LoginModal() {
     const t = useTranslations();
 
-    const { setModal } = useModal();
+    const { setModal, closeModal } = useModal();
 
-    const { mutate, isPending, error } = useLoginUser();
+    const { mutateAsync, isPending, error } = useLoginUser();
 
     const [info, setInfo] = useState({
         username: '',
@@ -43,7 +43,12 @@ export default function LoginModal() {
             return;
         }
 
-        mutate({ username, password });
+        try {
+            await mutateAsync({ username, password });
+            closeModal();
+        } catch(error) {
+            console.error(error);
+        }
     }
 
     return(
