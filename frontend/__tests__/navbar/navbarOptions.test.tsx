@@ -1,33 +1,26 @@
 import '@testing-library/jest-dom';
 import NavbarOptions from '@/components/navbar/NavbarOptions'
 import mockUser from '@/test-constants';
-import { render, screen, waitFor } from '@/test-utils'
+import { QueryWrapper, render, screen, waitFor } from '@/test-utils'
 import { QueryClient, QueryClientProvider, UseQueryResult } from '@tanstack/react-query';
 import { User } from '@/types';
 import * as useCurrentUser from '@/hooks/users/useCurrentUser';
 
+type MutationOverrides = UseQueryResult<User, Error>;
+
 describe('NavbarOptions', () => {
     const renderNavbarOptions = () => {
-        const queryClient = new QueryClient();
-        const Wrapper = ({ children }: { children: React.ReactNode }) => (
-            <QueryClientProvider client={queryClient}>
-                {children}
-            </QueryClientProvider>
-        )
         render(
-            <Wrapper>
+            <QueryWrapper>
                 <NavbarOptions />
-            </Wrapper>
+            </QueryWrapper>
         )
     }
-    const mockUseCurrentUser = ({ data=undefined, isPending=false }: {
-        data?: User | null;
-        isPending?: boolean;
-    }) => {
+
+    const mockUseCurrentUser = (overrides: Partial<MutationOverrides>) => {
         jest.spyOn(useCurrentUser, 'default').mockReturnValue({
-            data,
-            isPending,
-        } as UseQueryResult<User>)
+            ...overrides,
+        } as MutationOverrides);
     }
 
     it('should render tHe NavbarOptions component', () => {
