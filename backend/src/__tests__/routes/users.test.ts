@@ -228,5 +228,19 @@ describe('Users Routes', () => {
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
         })
+        it('throws an unauthorized error if the user being updated is not the logged in as the user', async () => {
+            const user = userWithoutPassword();
+            const error = new UnauthorizedError();
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid' } });
+            const updateUserSpy = mockUpdateUser(user);
+
+            const result = await request.patch(`/users/${user.id}`).send({ username: 'newusername' });
+
+            expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(result.body).toEqual({ message: error.message });
+            expect(authSpy).toHaveBeenCalled();
+            expect(updateUserSpy).not.toHaveBeenCalled();
+        })
     })
 })

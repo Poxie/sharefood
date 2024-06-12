@@ -63,14 +63,19 @@ router.delete('/:id', auth, asyncHandler(async (req: Request, res: Response) => 
     res.status(204).end();
 }))
 
-router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', auth, asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const { userId } = res.locals;
+
+    if(userId !== id) {
+        throw new UnauthorizedError();
+    }
 
     const data = req.body;
 
     const user = await UserMutations.updateUser(id, data);
 
     res.send(user);
-})
+}))
 
 export default router;
