@@ -27,12 +27,10 @@ router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
-    try {
-        const user = await UserQueries.getUserById(id);
-        res.send(user);
-    } catch(error) {
-        next(error);
-    }
+    const user = await UserQueries.getUserById(id);
+    if(!user) return next(new UserNotFoundError());
+
+    res.send(user);
 })
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {

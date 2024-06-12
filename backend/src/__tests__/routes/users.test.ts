@@ -34,47 +34,76 @@ describe('Users Routes', () => {
 
     const mockGetUserById = (user: User | null) => jest.spyOn(UserQueries, 'getUserById').mockResolvedValue(user);
 
+    const userWithoutPassword = () => mockUser({excludedFields: ['password']});
+
     afterEach(() => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
     })
 
-    describe('GET /users/me', () => {
-        it('returns the user based on the request cookies', async () => {
-            const user = mockUser();
-
-            const authSpy = mockAuthMiddleware({ locals: { userId: user.id } });
-            const getUserSpy = mockGetUserById(user);
-
-            const result = await request.get('/users/me');
-
-            expect(result.status).toBe(200);
-            expect(result.body).toEqual(user);
-            expect(authSpy).toHaveBeenCalled();
-            expect(getUserSpy).toHaveBeenCalledWith(user.id);
+    describe('Fetching users', () => {
+        describe('GET /users/me', () => {
+            it('returns the user based on the request cookies', async () => {
+                const user = userWithoutPassword();
+    
+                const authSpy = mockAuthMiddleware({ locals: { userId: user.id } });
+                const getUserSpy = mockGetUserById(user);
+    
+                const result = await request.get('/users/me');
+    
+                expect(result.status).toBe(200);
+                expect(result.body).toEqual(user);
+                expect(authSpy).toHaveBeenCalled();
+                expect(getUserSpy).toHaveBeenCalledWith(user.id);
+            })
+            it('if the authentication fails, throw an UnauthorizedError', async () => {
+                const error = new UnauthorizedError();
+                const authSpy = mockAuthMiddleware({ error });
+    
+                const result = await request.get('/users/me');
+    
+                expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
+                expect(result.body).toEqual({ message: error.message });
+                expect(authSpy).toHaveBeenCalled();
+            })
+            it('if the token is valid, but the user is not found, throw a UserNotFoundError', async () => {
+                const userId = 'id';
+    
+                const authSpy = mockAuthMiddleware({ locals: { userId } });
+                const getUserSpy = mockGetUserById(null);
+    
+                const result = await request.get('/users/me');
+    
+                expect(result.status).toBe(ERROR_CODES.NOT_FOUND);
+                expect(result.body).toEqual({ message: new UserNotFoundError().message });
+                expect(authSpy).toHaveBeenCalled();
+                expect(getUserSpy).toHaveBeenCalledWith(userId);
+            })
         })
-        it('if the authentication fails, throw an UnauthorizedError', async () => {
-            const error = new UnauthorizedError();
-            const authSpy = mockAuthMiddleware({ error });
+    
+        describe('GET /users/:id', () => {
+            it('returns a user object based on the provided id', async () => {
+                const user = userWithoutPassword();
 
-            const result = await request.get('/users/me');
+                const getUserSpy = mockGetUserById(user);
 
-            expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
-            expect(result.body).toEqual({ message: error.message });
-            expect(authSpy).toHaveBeenCalled();
-        })
-        it('if the token is valid, but the user is not found, throw a UserNotFoundError', async () => {
-            const userId = 'id';
+                const result = await request.get(`/users/${user.id}`);
 
-            const authSpy = mockAuthMiddleware({ locals: { userId } });
-            const getUserSpy = mockGetUserById(null);
+                expect(result.status).toBe(200);
+                expect(result.body).toEqual(user);
+                expect(getUserSpy).toHaveBeenCalledWith(user.id);
+            })
+            it('throws a UserNotFound error if the user does not exist', async () => {
+                const userId = 'id';
 
-            const result = await request.get('/users/me');
+                const getUserSpy = mockGetUserById(null);
 
-            expect(result.status).toBe(ERROR_CODES.NOT_FOUND);
-            expect(result.body).toEqual({ message: new UserNotFoundError().message });
-            expect(authSpy).toHaveBeenCalled();
-            expect(getUserSpy).toHaveBeenCalledWith(userId);
+                const result = await request.get(`/users/${userId}`);
+
+                expect(result.status).toBe(ERROR_CODES.NOT_FOUND);
+                expect(result.body).toEqual({ message: new UserNotFoundError().message });
+                expect(getUserSpy).toHaveBeenCalledWith(userId);
+            })
         })
     })
 })
