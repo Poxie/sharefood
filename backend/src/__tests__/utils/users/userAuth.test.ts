@@ -2,7 +2,9 @@ import UserAuth from '@/utils/users/userAuth';
 import UserQueries from '@/utils/users/userQueries';
 import { User } from '@prisma/client';
 import { exclude, mockUser } from '../../../../test-utils';
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import InvalidAccessTokenError from '@/errors/InvalidAccessTokenError';
 
 describe('userAuth', () => {
     describe('authenticateUser', () => {
@@ -44,6 +46,61 @@ describe('userAuth', () => {
             await expect(UserAuth.authenticateUser(username, inputPassword)).rejects.toThrow('Invalid username or password.');
             expect(getUserSpy).toHaveBeenCalledWith(username, true);
             expect(compareSpy).toHaveBeenCalledWith(inputPassword, user.password);
+        })
+    })
+
+    describe('signToken', () => {
+        it('signs a token with the user id', async () => {
+            const userId = 'userid';
+            const token = 'usertoken';
+
+            const spy = jest.spyOn(jwt, 'sign').mockImplementation(() => token);
+
+            const signedToken = await UserAuth.signToken(userId);
+
+            expect(signedToken).toBe(token);
+            expect(spy).toHaveBeenCalledWith({ userId }, process.env.JWT_PRIVATE_KEY);
+        })
+    })
+
+    describe('verifyToken', () => {
+        it('returns the userid if the token is valid', () => {
+            const userId = 'userid';
+            const accessToken = 'workingtoken';
+
+            const spy = jest.spyOn(jwt, 'verify').mockImplementation(() => ({ userId }));
+
+            const result = UserAuth.verifyToken({ accessToken });
+
+            expect(result).toBe(userId);
+            expect(spy).toHaveBeenCalledWith(accessToken, process.env.JWT_PRIVATE_KEY);
+        })
+        it('throws an error if the token is invalid', () => {
+            const accessToken = 'invalidaccesstoken';
+
+            const spy = jest.spyOn(jwt, 'verify').mockImplementation(() => { throw new JsonWebTokenError('someissue') });
+
+            try {
+                UserAuth.verifyToken({ accessToken });
+                fail('should have thrown an InvalidAccessToken error');
+            } catch(error) {
+                expect(spy).toHaveBeenCalledWith(accessToken, process.env.JWT_PRIVATE_KEY);
+                expect(error).toEqual(new InvalidAccessTokenError('Invalid access token.'));
+            }       
+        })
+        describe.each([
+            {},
+            { accessToken: '' },
+            { accessToken: undefined },
+        ])('if token is missing', (accessToken) => {
+            it('throws an error', () => {
+                try {
+                    UserAuth.verifyToken(accessToken);
+                    fail('should have thrown an InvalidAccessToken error');
+                } catch(error) {
+                    expect(error).toEqual(new InvalidAccessTokenError('Access token is missing.'));
+                }
+            })
         })
     })
 })
