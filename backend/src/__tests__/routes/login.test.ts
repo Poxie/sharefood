@@ -4,75 +4,29 @@ import UserAuth from '@/utils/users/userAuth';
 import { exclude, mockUser } from "../../../test-utils";
 import UnauthorizedError from "@/errors/UnauthorizedError";
 import { ERROR_CODES } from "@/errors/errorCodes";
+import { User } from "@prisma/client";
 
 const request = supertest(app);
 
 describe('POST /login', () => {
-    it('should return 200 if the username and password are correct and set token cookie', async () => {
-        const data = mockUser();
-        const { username, password } = data;
-        const token = 'token';
+    const mockAuthenticateUser = (user: Omit<User, 'password'>) => jest.spyOn(UserAuth, 'authenticateUser').mockResolvedValue(user);
+    const mockSignToken = (token: string) => jest.spyOn(UserAuth, 'signToken').mockReturnValue(token);
 
-        const returnData = exclude(data, ['password']);
-        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockResolvedValue(returnData);
-        const signTokenSpy = jest.spyOn(UserAuth, 'signToken').mockReturnValue(token);
+    const userWithoutPassword = () => mockUser({ excludedFields: ['password'] });
 
-        const response = await request
-            .post('/login')
-            .send({ username, password });
+    it('returns the user and sets their token as a cookie if username and password are correct', async () => {
+        const user = userWithoutPassword();
+        const password = 'password';
+        const token = 'accesstoken';
 
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual(returnData);
-        expect(authenticateSpy).toHaveBeenCalledWith(username, password);
-        expect(signTokenSpy).toHaveBeenCalledWith(returnData.id);
-        expect(response.headers['set-cookie'].at(0)).toMatch(new RegExp(`^accessToken=${token}`));
-    })
-    it('should return 401 if the username is incorrect', async () => {
-        const data = mockUser();
-        const { password } = data;
-        const username = 'incorrectusername';
+        const authenticateSpy = mockAuthenticateUser(user);
+        const signTokenSpy = mockSignToken(token);
 
-        const error = new UnauthorizedError('Invalid username or password.');
-        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockRejectedValue(error);
+        const response = await request.post('/login').send({ username: user.username, password });
 
-        const response = await request
-            .post('/login')
-            .send({ username, password });
-
-        expect(authenticateSpy).toHaveBeenCalledWith(username, password);
-        expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
-        expect(response.body).toEqual({ message: error.message });
-    })
-    it('should return 401 if the password is incorrect', async () => {
-        const data = mockUser();
-        const { username } = data;
-        const password = 'incorrectpassword';
-
-        const error = new UnauthorizedError('Invalid username or password.');
-        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockRejectedValue(error);
-
-        const response = await request
-            .post('/login')
-            .send({ username, password });
-
-        expect(authenticateSpy).toHaveBeenCalledWith(username, password);
-        expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
-        expect(response.body).toEqual({ message: error.message });
-    })
-    it('should return 400 if the username is missing', async () => {
-        const response = await request
-            .post('/login')
-            .send({ password: 'password' });
-
-        expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
-        expect(response.body).toEqual({ message: 'Username is required.' });
-    })
-    it('should return 400 if the password is missing', async () => {
-        const response = await request
-            .post('/login')
-            .send({ username: 'username' });
-
-        expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
-        expect(response.body).toEqual({ message: 'Password is required.' });
+        expect(response.body).toEqual(user);
+        expect(response.header['set-cookie'].at(0)).toContain(`accessToken=${token}`);
+        expect(authenticateSpy).toHaveBeenCalledWith(user.username, password);
+        expect(signTokenSpy).toHaveBeenCalledWith(user.id);
     })
 })

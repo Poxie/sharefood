@@ -1,28 +1,21 @@
-import BadRequestError from '@/errors/BadRequestError';
+import asyncHandler from '@/utils/asyncHandler';
 import { COOKIE_AGE } from '@/utils/constants';
 import UserAuth from '@/utils/users/userAuth';
 import express from 'express';
 
 const router = express.Router();
 
-router.post('/', async (req, res, next) => {
+router.post('/', asyncHandler(async (req, res) => {
     const { username, password } = req.body;
 
-    if(!username) return next(new BadRequestError('Username is required.'));
-    if(!password) return next(new BadRequestError('Password is required.'));
+    const user = await UserAuth.authenticateUser(username, password);
 
-    try {
-        const user = await UserAuth.authenticateUser(username, password);
+    const token = UserAuth.signToken(user.id);
+    res.cookie('accessToken', token, {
+        maxAge: COOKIE_AGE,
+    });
 
-        const token = UserAuth.signToken(user.id);
-        res.cookie('accessToken', token, {
-            maxAge: COOKIE_AGE,
-        });
-
-        res.send(user);
-    } catch(error) {
-        return next(error);
-    }
-})
+    res.send(user);
+}))
 
 export default router;
