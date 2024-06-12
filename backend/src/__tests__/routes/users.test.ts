@@ -247,7 +247,7 @@ describe('Users Routes', () => {
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).not.toHaveBeenCalled();
         })
-        it('allows updates the user information if the user in an admin', async () => {
+        it('allows updates on the user if the user in an admin', async () => {
             const { user, updatedUser, updateData } = getMockData({ username: 'newusername' });
 
             const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: true } });
