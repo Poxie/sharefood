@@ -1,18 +1,14 @@
-import express, { NextFunction, Request, Response } from 'express';
-import { PrismaClient, User } from '@prisma/client';
+import express, { Request, Response } from 'express';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import { auth } from '@/middleware/auth';
 import { COOKIE_AGE } from '@/utils/constants';
 import UserQueries from '@/utils/users/userQueries';
 import UserMutations from '@/utils/users/userMutations';
 import UserAuth from '@/utils/users/userAuth';
-import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
-import { UserSchema, userSchema } from '@/utils/users/userSchema';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import UserUtils from '@/utils/users/userUtils';
 import asyncHandler from '@/utils/asyncHandler';
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
 router.get('/me', auth, asyncHandler(async (req: Request, res: Response) => {
