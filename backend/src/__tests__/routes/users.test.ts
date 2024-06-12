@@ -242,5 +242,20 @@ describe('Users Routes', () => {
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).not.toHaveBeenCalled();
         })
+        it('allows updates the user information if the user in an admin', async () => {
+            const user = userWithoutPassword();
+            const updateUser = { ...user, username: 'newusername' };
+            const updateData = { username: updateUser.username };
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: true } });
+            const updateUserSpy = mockUpdateUser(updateUser);
+
+            const result = await request.patch(`/users/${user.id}`).send(updateData);
+
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual(updateUser);
+            expect(authSpy).toHaveBeenCalled();
+            expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
+        })
     })
 })
