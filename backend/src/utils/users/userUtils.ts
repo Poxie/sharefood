@@ -27,4 +27,11 @@ export default class UserUtils {
             .strict()
             .parse(reqBody);
     }
+    static validateUpdateUserInput(reqBody: Record<string, any>) {
+        userSchema
+            .pick({ username: true, password: true })
+            .strict()
+            .partial()
+            .parse(reqBody);
+    }
 }

@@ -260,5 +260,19 @@ describe('Users Routes', () => {
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
         })
+        it('ensures the input data is valid, includes only allowed fields, and does not include unrecognized fields', async () => {
+            const { user, updateData } = getMockData({ invalid: 'field' });
+
+            const updateUserSpy = mockUpdateUser(user);
+            const validationSpy = jest.spyOn(UserUtils, 'validateUpdateUserInput');
+            mockAuthMiddleware({ locals: { userId: user.id } });
+
+            const result = await request.patch(`/users/${user.id}`).send(updateData);
+
+            expect(result.status).toBe(ERROR_CODES.BAD_REQUEST);
+            expect(result.body).toEqual({ message: expect.stringContaining(UNRECOGNIZED_KEYS) });
+            expect(validationSpy).toHaveBeenCalledWith(updateData);
+            expect(updateUserSpy).not.toHaveBeenCalled();
+        })
     })
 })

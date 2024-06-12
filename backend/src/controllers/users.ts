@@ -73,6 +73,8 @@ router.patch('/:id', auth, asyncHandler(async (req: Request, res: Response) => {
 
     const data = req.body;
 
+    UserUtils.validateUpdateUserInput(data);
+    
     const user = await UserMutations.updateUser(id, data);
 
     res.send(user);
