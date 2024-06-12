@@ -213,18 +213,23 @@ describe('Users Routes', () => {
     describe('PATCH /users/:id', () => {
         const mockUpdateUser = (user: User) => jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(user);
 
+        const getMockData = (props: Record<string, any>) => {
+            const user = mockUser();
+            const updatedUser = { ...user, ...props };
+            const updateData = { ...props };
+            return { user, updatedUser, updateData };
+        }
+
         it('updates the users information based on the provided id', async () => {
-            const user = userWithoutPassword();
-            const updateUser = { ...user, username: 'newusername' };
-            const updateData = { username: updateUser.username };
+            const { user, updatedUser, updateData } = getMockData({ username: 'newusername' });
 
             const authSpy = mockAuthMiddleware({ locals: { userId: user.id } });
-            const updateUserSpy = mockUpdateUser(updateUser);
+            const updateUserSpy = mockUpdateUser(updatedUser);
 
             const result = await request.patch(`/users/${user.id}`).send(updateData);
 
             expect(result.status).toBe(200);
-            expect(result.body).toEqual(updateUser);
+            expect(result.body).toEqual(updatedUser);
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
         })
@@ -243,17 +248,15 @@ describe('Users Routes', () => {
             expect(updateUserSpy).not.toHaveBeenCalled();
         })
         it('allows updates the user information if the user in an admin', async () => {
-            const user = userWithoutPassword();
-            const updateUser = { ...user, username: 'newusername' };
-            const updateData = { username: updateUser.username };
+            const { user, updatedUser, updateData } = getMockData({ username: 'newusername' });
 
             const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: true } });
-            const updateUserSpy = mockUpdateUser(updateUser);
+            const updateUserSpy = mockUpdateUser(updatedUser);
 
             const result = await request.patch(`/users/${user.id}`).send(updateData);
 
             expect(result.status).toBe(200);
-            expect(result.body).toEqual(updateUser);
+            expect(result.body).toEqual(updatedUser);
             expect(authSpy).toHaveBeenCalled();
             expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
         })
