@@ -19,7 +19,8 @@ describe('auth middleware', () => {
                 isAdmin: undefined,
             } 
         };
-
+    })
+    afterEach(() => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
     })
