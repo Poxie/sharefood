@@ -66,46 +66,11 @@ router.delete('/:id', auth, asyncHandler(async (req: Request, res: Response) => 
 router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
-    // If the logged in user is not an admin or the user being updated, throw an error
-    const { userId, isAdmin } = res.locals;
-    if(userId !== id && !isAdmin) {
-        return next(new UnauthorizedError());
-    }
-
     const data = req.body;
 
-    // Validate the request body
-    try {
-        const allowedFields = ALLOWED_USER_FIELDS.reduce((obj, key) => {
-            obj[key] = true;
-            return obj;
-        }, {} as Record<keyof UserSchema, true>);
+    const user = await UserMutations.updateUser(id, data);
 
-        userSchema
-            .pick(allowedFields)
-            .strict()
-            .partial()
-            .parse(data);
-    } catch(error) {
-        next(error);
-    }
-
-    // If password is provided, hash it and replace the password property
-    if(data.password) {
-        data.password = await UserAuth.hashPassword(data.password);
-    }
-
-    // If logged in user is not an admin, they cannot change the isAdmin field
-    if(data.isAdmin && !isAdmin) {
-        return next(new UnauthorizedError());
-    }
-
-    try {
-        const user = await UserMutations.updateUser(id, data);
-        res.send(user);
-    } catch(error) {
-        return next(error);
-    }
+    res.send(user);
 })
 
 export default router;

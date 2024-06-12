@@ -14,6 +14,7 @@ import { exclude, mockUser } from "../../../test-utils";
 import { User } from "@prisma/client";
 import UserUtils from "@/utils/users/userUtils";
 import { UsernameAlreadyTakenError } from "@/errors/UsernameAlreadyTakenError";
+import { ALLOWED_USER_FIELDS } from "@/utils/users/userConstants";
 
 jest.mock('@/middleware/auth');
 
@@ -206,6 +207,26 @@ describe('Users Routes', () => {
             expect(result.status).toBe(204);
             expect(authSpy).toHaveBeenCalled();
             expect(deleteUserSpy).toHaveBeenCalledWith(user.id);
+        })
+    })
+
+    describe('PATCH /users/:id', () => {
+        const mockUpdateUser = (user: User) => jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(user);
+
+        it('updates the users information based on the provided id', async () => {
+            const user = userWithoutPassword();
+            const updateUser = { ...user, username: 'newusername' };
+            const updateData = { username: updateUser.username };
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: user.id } });
+            const updateUserSpy = mockUpdateUser(updateUser);
+
+            const result = await request.patch(`/users/${user.id}`).send(updateData);
+
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual(updateUser);
+            expect(authSpy).toHaveBeenCalled();
+            expect(updateUserSpy).toHaveBeenCalledWith(user.id, updateData);
         })
     })
 })
