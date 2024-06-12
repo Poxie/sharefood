@@ -15,25 +15,25 @@ import asyncHandler from '@/utils/asyncHandler';
 const prisma = new PrismaClient();
 const router = express.Router();
 
-router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', auth, asyncHandler(async (req: Request, res: Response) => {
     const { userId } = res.locals;
 
-    if(!userId) return next(new UserNotFoundError());
+    if(!userId) throw new UserNotFoundError();
     
     const user = await UserQueries.getUserById(userId);
-    if(!user) return next(new UserNotFoundError());
+    if(!user) throw new UserNotFoundError();
 
     res.send(user);
-});
+}));
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const user = await UserQueries.getUserById(id);
-    if(!user) return next(new UserNotFoundError());
+    if(!user) throw new UserNotFoundError();
 
     res.send(user);
-})
+}))
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
     const data = req.body;
