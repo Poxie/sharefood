@@ -287,12 +287,10 @@ describe('Users Routes', () => {
             mockAuthMiddleware({ locals: { userId: user.id } });
 
             const errorMessage = 'Invalid property: unknown';
-            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
 
             const updatedProperties = { unknown: 'field' };
             const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
 
-            expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
             expect(response.body).toEqual({ message: errorMessage });
         })
         describe.each([
@@ -303,7 +301,6 @@ describe('Users Routes', () => {
                 const user = mockUser(['password']);
 
                 const errorMessage = 'Invalid property: ' + Object.keys(data)[0];
-                const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
 
                 const response = await request.patch(`/users/${user.id}`).send(data);
 

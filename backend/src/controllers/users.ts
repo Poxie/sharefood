@@ -7,6 +7,8 @@ import { COOKIE_AGE } from '@/utils/constants';
 import UserQueries from '@/utils/users/userQueries';
 import UserMutations from '@/utils/users/userMutations';
 import UserAuth from '@/utils/users/userAuth';
+import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
+import BadRequestError from '@/errors/BadRequestError';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -79,16 +81,23 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     res.send({});
 })
 
-// TODO: Add checks for immutable & unknown fields, as those were removed from updateUser mutation function
 router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
+    // If the logged in user is not an admin or the user being updated, throw an error
     const { userId, isAdmin } = res.locals;
     if(userId !== id && !isAdmin) {
         return next(new UnauthorizedError());
     }
 
     const data = req.body;
+
+    // If invalid properties are provided
+    for(const key in data) {
+        if(!ALLOWED_USER_FIELDS.includes(key)) {
+            return next(new BadRequestError(`Invalid property: ${key}`));
+        }
+    }
 
     // If logged in user is not an admin, they cannot change the isAdmin field
     if(data.isAdmin && !isAdmin) {
