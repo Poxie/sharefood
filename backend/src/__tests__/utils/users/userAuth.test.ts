@@ -75,31 +75,25 @@ describe('userAuth', () => {
             expect(result).toBe(userId);
             expect(spy).toHaveBeenCalledWith(accessToken, process.env.JWT_PRIVATE_KEY);
         })
-        it('throws an error if the token is invalid', () => {
+        it('returns null if the access token is invalid', () => {
             const accessToken = 'invalidaccesstoken';
 
             const spy = jest.spyOn(jwt, 'verify').mockImplementation(() => { throw new JsonWebTokenError('someissue') });
 
-            try {
-                UserAuth.verifyToken({ accessToken });
-                fail('should have thrown an InvalidAccessToken error');
-            } catch(error) {
-                expect(spy).toHaveBeenCalledWith(accessToken, process.env.JWT_PRIVATE_KEY);
-                expect(error).toEqual(new InvalidAccessTokenError('Invalid access token.'));
-            }       
+            const userId = UserAuth.verifyToken({ accessToken });
+            
+            expect(userId).toBeNull();
+            expect(spy).toHaveBeenCalledWith(accessToken, process.env.JWT_PRIVATE_KEY);
         })
         describe.each([
             {},
             { accessToken: '' },
             { accessToken: undefined },
         ])('if token is missing', (accessToken) => {
-            it('throws an error', () => {
-                try {
-                    UserAuth.verifyToken(accessToken);
-                    fail('should have thrown an InvalidAccessToken error');
-                } catch(error) {
-                    expect(error).toEqual(new InvalidAccessTokenError('Access token is missing.'));
-                }
+            it('return null', () => {
+                const userId = UserAuth.verifyToken(accessToken);
+                
+                expect(userId).toBeNull();
             })
         })
     })

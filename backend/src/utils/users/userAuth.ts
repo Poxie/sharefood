@@ -30,13 +30,13 @@ export default class UserAuth {
         if(!JWT_PRIVATE_KEY) throw new Error('JWT_PRIVATE_KEY is not defined');
     
         const accessToken = cookies?.accessToken;
-        if(!accessToken) throw new InvalidAccessTokenError('Access token is missing.');
+        if(!accessToken) return null;
     
         try {
             const data = jwt.verify(accessToken, JWT_PRIVATE_KEY) as { userId: string };
             return data.userId;
         } catch(error) {
-            throw new InvalidAccessTokenError('Invalid access token.');
+            return null;
         }
     }
 
