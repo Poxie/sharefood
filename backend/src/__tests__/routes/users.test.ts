@@ -164,4 +164,22 @@ describe('Users Routes', () => {
             expect(createUserSpy).toHaveBeenCalledWith(postData);
         })
     })
+
+    describe('DELETE /users/:id', () => {
+        const mockDeleteUser = () => jest.spyOn(UserMutations, 'deleteUser').mockResolvedValue(true);
+        const mockDeleteUserError = (error: Error) => jest.spyOn(UserMutations, 'deleteUser').mockRejectedValue(error);
+
+        it('deletes the user based on the provided id', async () => {
+            const user = userWithoutPassword();
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: user.id } });
+            const deleteUserSpy = mockDeleteUser();
+
+            const result = await request.delete(`/users/${user.id}`);
+
+            expect(result.status).toBe(204);
+            expect(authSpy).toHaveBeenCalled();
+            expect(deleteUserSpy).toHaveBeenCalledWith(user.id);
+        })
+    })
 })
