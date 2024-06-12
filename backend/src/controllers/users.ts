@@ -10,6 +10,7 @@ import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
 import { UserSchema, userSchema } from '@/utils/users/userSchema';
 import UserNotFoundError from '@/errors/UserNotFoundError';
 import UserUtils from '@/utils/users/userUtils';
+import asyncHandler from '@/utils/asyncHandler';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -34,7 +35,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     res.send(user);
 })
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', asyncHandler(async (req: Request, res: Response) => {
     const data = req.body;
 
     UserUtils.validateCreateUserInput(data);
@@ -46,8 +47,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         maxAge: COOKIE_AGE,
     });
 
-    return res.send(user);
-});
+    res.send(user);
+}));
 
 router.delete('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;

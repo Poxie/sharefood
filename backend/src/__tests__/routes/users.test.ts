@@ -13,6 +13,7 @@ import { UNRECOGNIZED_KEYS } from "@/utils/commonErrorMessages";
 import { exclude, mockUser } from "../../../test-utils";
 import { User } from "@prisma/client";
 import UserUtils from "@/utils/users/userUtils";
+import { UsernameAlreadyTakenError } from "@/errors/UsernameAlreadyTakenError";
 
 jest.mock('@/middleware/auth');
 
@@ -108,21 +109,38 @@ describe('Users Routes', () => {
     })
     
     describe('POST /users', () => {
-        const mockCreateUser = (user: Omit<User, 'password'>) => jest.spyOn(UserMutations, 'createUser').mockResolvedValue(user);
-        const mockCreateUserError = (error: Error) => jest.spyOn(UserMutations, 'createUser').mockRejectedValue(error);
-
         const user = mockUser();
         const userWithoutPassword = exclude(user, ['password']);
         const postData = { username: user.username, password: user.password };
+
+        const mockCreateUser = (user: Omit<User, 'password'>) => jest.spyOn(UserMutations, 'createUser').mockResolvedValue(user);
+        const mockCreateUserError = (error: Error) => jest.spyOn(UserMutations, 'createUser').mockRejectedValue(error);
+
+        const expectSuccessfulResponse = (result: supertest.Response) => {
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual(userWithoutPassword);
+        }
 
         it('creates the user and returns a user object', async () => {
             const createUserSpy = mockCreateUser(userWithoutPassword);
 
             const result = await request.post('/users').send(postData);
 
-            expect(result.status).toBe(200);
-            expect(result.body).toEqual(userWithoutPassword);
+            expectSuccessfulResponse(result);
             expect(createUserSpy).toHaveBeenCalledWith(postData);
+        })
+        it('signs a token and sets it as a cookie after successfully creating the user', async () => {
+            const token = 'accesstoken';
+            
+            const createUserSpy = mockCreateUser(userWithoutPassword);
+            const signTokenSpy = jest.spyOn(UserAuth, 'signToken').mockReturnValue(token);
+
+            const result = await request.post('/users').send(postData);
+
+            expectSuccessfulResponse(result);
+            expect(createUserSpy).toHaveBeenCalledWith(postData);
+            expect(signTokenSpy).toHaveBeenCalledWith(user.id);
+            expect(result.headers['set-cookie'].at(0)).toMatch(new RegExp(`^accessToken=${token}`));
         })
         it('calls the validateCreateUserInput function to ensure user input validation', async () => {
             const createUserSpy = mockCreateUser(userWithoutPassword);
@@ -130,10 +148,20 @@ describe('Users Routes', () => {
 
             const result = await request.post('/users').send(postData);
 
-            expect(result.status).toBe(200);
-            expect(result.body).toEqual(userWithoutPassword);
+            expectSuccessfulResponse(result);
             expect(createUserSpy).toHaveBeenCalledWith(postData);
             expect(validateCreateUserInputSpy).toHaveBeenCalledWith(postData);
+        })
+        it('throws a UsernameAlreadyTaken error if the username is already taken', async () => {
+            const error = new UsernameAlreadyTakenError();
+
+            const createUserSpy = mockCreateUserError(error);
+
+            const result = await request.post('/users').send(postData);
+
+            expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(result.body).toEqual({ message: error.message });
+            expect(createUserSpy).toHaveBeenCalledWith(postData);
         })
     })
 })
