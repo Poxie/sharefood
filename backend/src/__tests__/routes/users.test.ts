@@ -2,13 +2,14 @@ import supertest from "supertest";
 import app from "../../app";
 import { prismaMock } from "../../../singleton";
 import { User } from "@prisma/client";
-import Users from "@/utils/users";
-import * as Auth from '@/utils/auth';
 import * as AuthMiddleware from '@/middleware/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
 import UserNotFoundError from "@/errors/UserNotFoundError";
 import UnauthorizedError from "@/errors/UnauthorizedError";
 import BadRequestError from "@/errors/BadRequestError";
+import UserQueries from "@/utils/users/userQueries";
+import UserMutations from "@/utils/users/userMutations";
+import UserAuth from "@/utils/users/userAuth";
 
 jest.mock('@/middleware/auth');
 
@@ -53,7 +54,7 @@ describe('Users Routes', () => {
             const user = mockUser(['password']);
 
             mockAuthMiddleware({ locals: { userId: user.id } });
-            const getUserSpy = jest.spyOn(Users, 'getUserById').mockResolvedValue(user);
+            const getUserSpy = jest.spyOn(UserQueries, 'getUserById').mockResolvedValue(user);
 
             const response = await request.get('/users/me');
 
@@ -73,7 +74,7 @@ describe('Users Routes', () => {
             const id = 'nonexistant';
 
             mockAuthMiddleware({ locals: { userId: id } });
-            jest.spyOn(Users, 'getUserById').mockRejectedValue(new UserNotFoundError());
+            jest.spyOn(UserQueries, 'getUserById').mockRejectedValue(new UserNotFoundError());
 
             const response = await request.get('/users/me');
 
@@ -86,7 +87,7 @@ describe('Users Routes', () => {
         const user = mockUser(['password']);
 
         it('should return the user with the matching id', async () => {
-            const spy = jest.spyOn(Users, 'getUserById').mockResolvedValue(user);
+            const spy = jest.spyOn(UserQueries, 'getUserById').mockResolvedValue(user);
 
             const response = await request.get(`/users/${user.id}`);
 
@@ -98,7 +99,7 @@ describe('Users Routes', () => {
             const id = 'nonexistant';
             const error = new UserNotFoundError();
 
-            jest.spyOn(Users, 'getUserById').mockRejectedValue(error);
+            jest.spyOn(UserQueries, 'getUserById').mockRejectedValue(error);
 
             const response = await request.get(`/users/${id}`);
 
@@ -118,8 +119,8 @@ describe('Users Routes', () => {
             const user = mockUser(['password']);
             const password = 'password';
 
-            const spyCreateUser = jest.spyOn(Users, 'createUser');
-            const spySignToken = jest.spyOn(Auth, 'signToken');
+            const spyCreateUser = jest.spyOn(UserMutations, 'createUser');
+            const spySignToken = jest.spyOn(UserAuth, 'signToken');
 
             const response = await request.post('/users').send({
                 username: user.username,
@@ -168,7 +169,7 @@ describe('Users Routes', () => {
             const adminUserId = '2';
 
             mockAuthMiddleware({ locals: { userId: adminUserId, isAdmin: true } });
-            const deleteUserSpy = jest.spyOn(Users, 'deleteUser');
+            const deleteUserSpy = jest.spyOn(UserMutations, 'deleteUser');
 
             const response = await request.delete(`/users/${id}`);
 
@@ -181,7 +182,7 @@ describe('Users Routes', () => {
             const id = '1';
 
             mockAuthMiddleware({ locals: { userId: id } });
-            const deleteUserSpy = jest.spyOn(Users, 'deleteUser');
+            const deleteUserSpy = jest.spyOn(UserMutations, 'deleteUser');
 
             const response = await request.delete(`/users/${id}`);
 
@@ -194,7 +195,7 @@ describe('Users Routes', () => {
             const id = '1';
 
             mockAuthMiddleware({ locals: { userId: '2' } });
-            const deleteUserSpy = jest.spyOn(Users, 'deleteUser');
+            const deleteUserSpy = jest.spyOn(UserMutations, 'deleteUser');
 
             const response = await request.delete(`/users/${id}`);
 
@@ -206,7 +207,7 @@ describe('Users Routes', () => {
             const id = 'nonexistant';
 
             mockAuthMiddleware({ locals: { userId: '1', isAdmin: true } });
-            jest.spyOn(Users, 'deleteUser').mockRejectedValue(new UserNotFoundError());
+            jest.spyOn(UserMutations, 'deleteUser').mockRejectedValue(new UserNotFoundError());
 
             const response = await request.delete(`/users/${id}`);
 
@@ -220,7 +221,7 @@ describe('Users Routes', () => {
             const updatedUser = { ...user, username: 'newUsername' };
 
             mockAuthMiddleware({ locals: { userId: '2', isAdmin: true } });
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(updatedUser);
 
             const updatedProperties = { username: updatedUser.username };
             const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
@@ -234,7 +235,7 @@ describe('Users Routes', () => {
             const updatedUser = { ...user, username: 'newUsername' };
 
             mockAuthMiddleware({ locals: { userId: user.id } });
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(updatedUser);
 
             const updatedProperties = { username: updatedUser.username };
             const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
@@ -248,7 +249,7 @@ describe('Users Routes', () => {
             const updatedUser = { ...user, isAdmin: true };
 
             mockAuthMiddleware({ locals: { userId: user.id, isAdmin: false } });
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(updatedUser);
 
             const response = await request.patch(`/users/${user.id}`).send({ isAdmin: updatedUser.isAdmin });
 
@@ -261,7 +262,7 @@ describe('Users Routes', () => {
             const updatedUser = { ...user, username: 'newUsername' };
 
             mockAuthMiddleware({ locals: { userId: '2', isAdmin: false } });
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockResolvedValue(updatedUser);
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(updatedUser);
 
             const response = await request.patch(`/users/${user.id}`).send({ username: updatedUser.username });
 
@@ -273,7 +274,7 @@ describe('Users Routes', () => {
             const id = 'nonexistant';
 
             mockAuthMiddleware({ locals: { userId: '1', isAdmin: true } });
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockRejectedValue(new UserNotFoundError());
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockRejectedValue(new UserNotFoundError());
 
             const response = await request.patch(`/users/${id}`).send({ username: 'newUsername' });
 
@@ -286,7 +287,7 @@ describe('Users Routes', () => {
             mockAuthMiddleware({ locals: { userId: user.id } });
 
             const errorMessage = 'Invalid property: unknown';
-            const updateUserSpy = jest.spyOn(Users, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
 
             const updatedProperties = { unknown: 'field' };
             const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
@@ -302,7 +303,7 @@ describe('Users Routes', () => {
                 const user = mockUser(['password']);
 
                 const errorMessage = 'Invalid property: ' + Object.keys(data)[0];
-                const updateUserSpy = jest.spyOn(Users, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
+                const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockRejectedValue(new BadRequestError(errorMessage));
 
                 const response = await request.patch(`/users/${user.id}`).send(data);
 

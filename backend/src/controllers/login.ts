@@ -1,8 +1,6 @@
-import app from '@/app';
 import BadRequestError from '@/errors/BadRequestError';
-import { signToken } from '@/utils/auth';
 import { COOKIE_AGE } from '@/utils/constants';
-import Users from '@/utils/users';
+import UserAuth from '@/utils/users/userAuth';
 import express from 'express';
 
 const router = express.Router();
@@ -14,9 +12,9 @@ router.post('/', async (req, res, next) => {
     if(!password) return next(new BadRequestError('Password is required.'));
 
     try {
-        const user = await Users.authenticate(username, password);
+        const user = await UserAuth.authenticateUser(username, password);
 
-        const token = signToken(user.id);
+        const token = UserAuth.signToken(user.id);
         res.cookie('accessToken', token, {
             maxAge: COOKIE_AGE,
         });

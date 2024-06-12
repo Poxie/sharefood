@@ -1,7 +1,6 @@
 import app from "@/app";
 import supertest from "supertest";
-import Users from "@/utils/users";
-import * as Auth from '@/utils/auth';
+import UserAuth from '@/utils/users/userAuth';
 import { exclude, mockUser } from "../../../test-utils";
 import UnauthorizedError from "@/errors/UnauthorizedError";
 import { ERROR_CODES } from "@/errors/errorCodes";
@@ -15,8 +14,8 @@ describe('POST /login', () => {
         const token = 'token';
 
         const returnData = exclude(data, ['password']);
-        const authenticateSpy = jest.spyOn(Users, 'authenticate').mockResolvedValue(returnData);
-        const signTokenSpy = jest.spyOn(Auth, 'signToken').mockReturnValue(token);
+        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockResolvedValue(returnData);
+        const signTokenSpy = jest.spyOn(UserAuth, 'signToken').mockReturnValue(token);
 
         const response = await request
             .post('/login')
@@ -34,7 +33,7 @@ describe('POST /login', () => {
         const username = 'incorrectusername';
 
         const error = new UnauthorizedError('Invalid username or password.');
-        const authenticateSpy = jest.spyOn(Users, 'authenticate').mockRejectedValue(error);
+        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockRejectedValue(error);
 
         const response = await request
             .post('/login')
@@ -50,7 +49,7 @@ describe('POST /login', () => {
         const password = 'incorrectpassword';
 
         const error = new UnauthorizedError('Invalid username or password.');
-        const authenticateSpy = jest.spyOn(Users, 'authenticate').mockRejectedValue(error);
+        const authenticateSpy = jest.spyOn(UserAuth, 'authenticateUser').mockRejectedValue(error);
 
         const response = await request
             .post('/login')

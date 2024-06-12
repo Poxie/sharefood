@@ -21,7 +21,7 @@ export default class UserAuth {
         return UserUtils.excludeProperties(user, ['password']);
     }
 
-    static async signToken(userId: string) {
+    static signToken(userId: string) {
         if(!JWT_PRIVATE_KEY) throw new Error('JWT_PRIVATE_KEY is not defined');
         return jwt.sign({ userId }, JWT_PRIVATE_KEY);
     }

@@ -1,14 +1,12 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import Users from '../utils/users';
-import { UsernameAlreadyTakenError } from '@/errors/UsernameAlreadyTakenError';
 import ArgumentMissingError from '@/errors/ArgumentMissingError';
-import { signToken, verifyToken } from '@/utils/auth';
-import UserNotFoundError from '@/errors/UserNotFoundError';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import { auth } from '@/middleware/auth';
-import { ALLOWED_USER_FIELDS, COOKIE_AGE } from '@/utils/constants';
-import BadRequestError from '@/errors/BadRequestError';
+import { COOKIE_AGE } from '@/utils/constants';
+import UserQueries from '@/utils/users/userQueries';
+import UserMutations from '@/utils/users/userMutations';
+import UserAuth from '@/utils/users/userAuth';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -22,7 +20,7 @@ router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) 
     const { userId } = res.locals;
     
     try {
-        const user = await Users.getUserById(userId);
+        const user = await UserQueries.getUserById(userId);
         res.send(user);
     } catch(error) {
         next(error);
@@ -33,7 +31,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
     try {
-        const user = await Users.getUserById(id);
+        const user = await UserQueries.getUserById(id);
         res.send(user);
     } catch(error) {
         next(error);
@@ -47,12 +45,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     if(!password) return next(new ArgumentMissingError('Password is missing.'));
 
     try {
-        const user = await Users.createUser({ 
+        const user = await UserMutations.createUser({ 
             username, 
             password, 
         });
 
-        const accessToken = signToken(user.id);
+        const accessToken = UserAuth.signToken(user.id);
         res.cookie('accessToken', accessToken, {
             maxAge: COOKIE_AGE,
         });
@@ -73,7 +71,7 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     if(userId !== id && !isAdmin) return next(new UnauthorizedError());
     
     try {
-        await Users.deleteUser(id);
+        await UserMutations.deleteUser(id);
     } catch(error) {
         return next(error);
     }
@@ -81,6 +79,7 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     res.send({});
 })
 
+// TODO: Add checks for immutable & unknown fields, as those were removed from updateUser mutation function
 router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
@@ -97,7 +96,7 @@ router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunctio
     }
 
     try {
-        const user = await Users.updateUser(id, data);
+        const user = await UserMutations.updateUser(id, data);
         res.send(user);
     } catch(error) {
         return next(error);

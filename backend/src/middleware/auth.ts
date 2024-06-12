@@ -1,12 +1,12 @@
 import InvalidAccessTokenError from "@/errors/InvalidAccessTokenError";
-import { verifyToken } from "@/utils/auth";
-import Users from "@/utils/users";
+import UserAuth from "@/utils/users/userAuth";
+import UserQueries from "@/utils/users/userQueries";
 import { NextFunction, Request, Response } from "express";
 
 async function authenticate(req: Request, res: Response, optional: boolean = false) {
     try {
-        const userId = verifyToken(req.cookies);
-        const isAdmin = await Users.isAdmin(userId);
+        const userId = UserAuth.verifyToken(req.cookies);
+        const isAdmin = await UserQueries.isAdmin(userId);
 
         res.locals.userId = userId;
         res.locals.isAdmin = isAdmin;
