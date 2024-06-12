@@ -47,6 +47,10 @@ export default class UserMutations {
     static async updateUser(id: string, data: Partial<User>) {
         if(!process.env.BCRYPT_SALT_ROUNDS) throw new Error('BCRYPT_SALT_ROUNDS is not defined in the environment variables.');
 
+        if(data.password) {
+            data.password = await bcrypt.hash(data.password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
+        }
+
         try {
             const user = await prisma.user.update({ where: { id }, data });
             return UserUtils.excludeProperties(user, ['password']);

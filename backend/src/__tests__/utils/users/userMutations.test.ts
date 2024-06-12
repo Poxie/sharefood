@@ -106,5 +106,24 @@ describe('userMutations', () => {
                 });
             })
         })
+        it('hashes the password if it is included in the data', async () => {
+            const user = mockUser();
+            const password = 'newpassword';
+            const hashedPassword = 'newhashedpassword';
+
+            const data = { password };
+
+            const hashSpy = jest.spyOn(bcrypt, 'hash').mockImplementation(() => hashedPassword);
+            const prismaSpy = mockUpdateUser(user);
+
+            const updatedUser = await UserMutations.updateUser(user.id, data);
+
+            expect(updatedUser).toEqual(exclude(user, ['password']));
+            expect(hashSpy).toHaveBeenCalledWith(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
+            expect(prismaSpy).toHaveBeenCalledWith({ 
+                where: { id: user.id }, 
+                data: { password: hashedPassword },
+            });
+        })
     })
 })
