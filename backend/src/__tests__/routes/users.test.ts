@@ -181,5 +181,17 @@ describe('Users Routes', () => {
             expect(authSpy).toHaveBeenCalled();
             expect(deleteUserSpy).toHaveBeenCalledWith(user.id);
         })
+        it('throws an unauthorized error if the user being deleted is not the logged in as the user', async () => {
+            const user = userWithoutPassword();
+            const error = new UnauthorizedError();
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid' } });
+
+            const result = await request.delete(`/users/${user.id}`);
+
+            expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
+            expect(result.body).toEqual({ message: error.message });
+            expect(authSpy).toHaveBeenCalled();
+        })
     })
 })

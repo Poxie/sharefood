@@ -50,8 +50,13 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     res.send(user);
 }));
 
-router.delete('/:id', auth, asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', auth, asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const { userId } = res.locals;
+
+    if(userId !== id) {
+        throw new UnauthorizedError();
+    }
 
     await UserMutations.deleteUser(id);
 
