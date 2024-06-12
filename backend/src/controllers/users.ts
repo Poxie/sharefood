@@ -7,26 +7,21 @@ import UserQueries from '@/utils/users/userQueries';
 import UserMutations from '@/utils/users/userMutations';
 import UserAuth from '@/utils/users/userAuth';
 import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
-import BadRequestError from '@/errors/BadRequestError';
-import { userSchema } from '@/utils/users/userSchema';
+import { UserSchema, userSchema } from '@/utils/users/userSchema';
+import UserNotFoundError from '@/errors/UserNotFoundError';
 
 const prisma = new PrismaClient();
 const router = express.Router();
 
-router.get('/', async (req: Request, res: Response) => {
-    const users = await prisma.user.findMany();
-    res.send(users);
-});
-
 router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = res.locals;
+
+    if(!userId) return next(new UserNotFoundError());
     
-    try {
-        const user = await UserQueries.getUserById(userId);
-        res.send(user);
-    } catch(error) {
-        next(error);
-    }
+    const user = await UserQueries.getUserById(userId);
+    if(!user) return next(new UserNotFoundError());
+
+    res.send(user);
 });
 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -87,7 +82,6 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     res.send({});
 })
 
-// TODO: add constraints to values, such as character length & non empty values
 router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
@@ -99,11 +93,20 @@ router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunctio
 
     const data = req.body;
 
-    // If invalid properties or values are provided
-    for(const [prop, value] of Object.entries(data)) {
-        if(!ALLOWED_USER_FIELDS.includes(prop)) {
-            return next(new BadRequestError(`Invalid property: ${prop}`));
-        }
+    // Validate the request body
+    try {
+        const allowedFields = ALLOWED_USER_FIELDS.reduce((obj, key) => {
+            obj[key] = true;
+            return obj;
+        }, {} as Record<keyof UserSchema, true>);
+
+        userSchema
+            .pick(allowedFields)
+            .strict()
+            .partial()
+            .parse(data);
+    } catch(error) {
+        next(error);
     }
 
     // If password is provided, hash it and replace the password property
