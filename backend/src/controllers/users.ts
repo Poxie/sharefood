@@ -16,9 +16,8 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 router.get('/me', auth, asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = res.locals;
-
-    if(!userId) throw new UserNotFoundError();
+    // Thanks to the auth middleware, userId is guaranteed to be defined
+    const userId = res.locals.userId!;
     
     const user = await UserQueries.getUserById(userId);
     if(!user) throw new UserNotFoundError();
