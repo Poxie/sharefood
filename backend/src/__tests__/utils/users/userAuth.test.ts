@@ -1,4 +1,4 @@
-import * as UserAuth from '@/utils/users/userAuth';
+import UserAuth from '@/utils/users/userAuth';
 import UserQueries from '@/utils/users/userQueries';
 import { User } from '@prisma/client';
 import { exclude, mockUser } from '../../../../test-utils';
