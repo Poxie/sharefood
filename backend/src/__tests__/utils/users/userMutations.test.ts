@@ -6,6 +6,7 @@ import { PRISMA_ERROR_CODES } from "@/errors/errorCodes";
 import { UsernameAlreadyTakenError } from "@/errors/UsernameAlreadyTakenError";
 import UserUtils from "@/utils/users/userUtils";
 import UserNotFoundError from "@/errors/UserNotFoundError";
+import { User } from "@prisma/client";
 
 describe('userMutations', () => {
     afterEach(() => {
@@ -71,11 +72,14 @@ describe('userMutations', () => {
     })
 
     describe('updateUser', () => {
+        const mockUpdateUser = (data: User) => prismaMock.user.update.mockResolvedValue(data);
+        const mockUpdateUserError = (code: string) => prismaMock.user.update.mockRejectedValue({ code });
+
         it('throws an error if the user does not exist', async () => {
             const userId = 'invalidid';
             const data = { username: 'newusername' };
 
-            prismaMock.user.update.mockRejectedValue({ code: PRISMA_ERROR_CODES.RECORD_NOT_FOUND });
+            mockUpdateUserError(PRISMA_ERROR_CODES.RECORD_NOT_FOUND);
 
             await expect(UserMutations.updateUser(userId, data)).rejects.toThrow(new UserNotFoundError());
         })
@@ -91,7 +95,7 @@ describe('userMutations', () => {
     
                 const newUser = {...user, ...data};
     
-                const prismaSpy = prismaMock.user.update.mockResolvedValue(newUser);
+                const prismaSpy = mockUpdateUser(newUser);
     
                 const updatedUser = await UserMutations.updateUser(user.id, data);
     
