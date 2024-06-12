@@ -52,9 +52,9 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 
 router.delete('/:id', auth, asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { userId } = res.locals;
+    const { userId, isAdmin } = res.locals;
 
-    if(userId !== id) {
+    if(userId !== id && !isAdmin) {
         throw new UnauthorizedError();
     }
 

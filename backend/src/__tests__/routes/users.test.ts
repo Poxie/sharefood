@@ -185,13 +185,25 @@ describe('Users Routes', () => {
             const user = userWithoutPassword();
             const error = new UnauthorizedError();
 
-            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid' } });
+            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: false } });
 
             const result = await request.delete(`/users/${user.id}`);
 
             expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
             expect(result.body).toEqual({ message: error.message });
             expect(authSpy).toHaveBeenCalled();
+        })
+        it('allows admins to delete any user', async () => {
+            const user = userWithoutPassword();
+
+            const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: true } });
+            const deleteUserSpy = mockDeleteUser();
+
+            const result = await request.delete(`/users/${user.id}`);
+
+            expect(result.status).toBe(204);
+            expect(authSpy).toHaveBeenCalled();
+            expect(deleteUserSpy).toHaveBeenCalledWith(user.id);
         })
     })
 })
