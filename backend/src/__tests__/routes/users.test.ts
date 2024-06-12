@@ -185,6 +185,7 @@ describe('Users Routes', () => {
             const user = userWithoutPassword();
             const error = new UnauthorizedError();
 
+            const deleteUserSpy = mockDeleteUser();
             const authSpy = mockAuthMiddleware({ locals: { userId: 'differentid', isAdmin: false } });
 
             const result = await request.delete(`/users/${user.id}`);
@@ -192,6 +193,7 @@ describe('Users Routes', () => {
             expect(result.status).toBe(ERROR_CODES.UNAUTHORIZED);
             expect(result.body).toEqual({ message: error.message });
             expect(authSpy).toHaveBeenCalled();
+            expect(deleteUserSpy).not.toHaveBeenCalled();
         })
         it('allows admins to delete any user', async () => {
             const user = userWithoutPassword();
