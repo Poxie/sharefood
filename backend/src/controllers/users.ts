@@ -81,6 +81,7 @@ router.delete('/:id', auth, async (req: Request, res: Response, next: NextFuncti
     res.send({});
 })
 
+// TODO: add constraints to values, such as character length & non empty values
 router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
@@ -92,11 +93,16 @@ router.patch('/:id', auth, async (req: Request, res: Response, next: NextFunctio
 
     const data = req.body;
 
-    // If invalid properties are provided
-    for(const key in data) {
-        if(!ALLOWED_USER_FIELDS.includes(key)) {
-            return next(new BadRequestError(`Invalid property: ${key}`));
+    // If invalid properties or values are provided
+    for(const [prop, value] of Object.entries(data)) {
+        if(!ALLOWED_USER_FIELDS.includes(prop)) {
+            return next(new BadRequestError(`Invalid property: ${prop}`));
         }
+    }
+
+    // If password is provided, hash it and replace the password property
+    if(data.password) {
+        data.password = await UserAuth.hashPassword(data.password);
     }
 
     // If logged in user is not an admin, they cannot change the isAdmin field

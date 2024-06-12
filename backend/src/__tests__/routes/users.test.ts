@@ -244,6 +244,24 @@ describe('Users Routes', () => {
             expect(response.body).toEqual(updatedUser);
             expect(updateUserSpy).toHaveBeenCalledWith(user.id, updatedProperties);
         });
+        it('hashes the password if it is passed as a property', async () => {
+            const user = mockUser(['password']);
+
+            const newPassword = 'newPassword';
+            const hashedPassword = 'hashedPassword';
+
+            mockAuthMiddleware({ locals: { userId: user.id } });
+            const hashSpy = jest.spyOn(UserAuth, 'hashPassword').mockResolvedValue(hashedPassword);
+            const updateUserSpy = jest.spyOn(UserMutations, 'updateUser').mockResolvedValue(user);
+
+            const updatedProperties = { password: newPassword };
+            const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(user);
+            expect(hashSpy).toHaveBeenCalledWith(newPassword);
+            expect(updateUserSpy).toHaveBeenCalledWith(user.id, { password: hashedPassword });
+        })
         it('should return a 401 status code if isAdmin is passed and the logged in user is not an admin', async () => {
             const user = mockUser(['password']);
             const updatedUser = { ...user, isAdmin: true };
@@ -291,6 +309,7 @@ describe('Users Routes', () => {
             const updatedProperties = { unknown: 'field' };
             const response = await request.patch(`/users/${user.id}`).send(updatedProperties);
 
+            expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
             expect(response.body).toEqual({ message: errorMessage });
         })
         describe.each([
