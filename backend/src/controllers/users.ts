@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import ArgumentMissingError from '@/errors/ArgumentMissingError';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import { auth } from '@/middleware/auth';
 import { COOKIE_AGE } from '@/utils/constants';
@@ -9,6 +8,7 @@ import UserMutations from '@/utils/users/userMutations';
 import UserAuth from '@/utils/users/userAuth';
 import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
 import BadRequestError from '@/errors/BadRequestError';
+import { userSchema } from '@/utils/users/userSchema';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -43,8 +43,14 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const { username, password } = req.body;
 
-    if(!username) return next(new ArgumentMissingError('Username is missing.'));
-    if(!password) return next(new ArgumentMissingError('Password is missing.'));
+    try {
+        userSchema
+            .pick({ username: true, password: true })
+            .strict()
+            .parse(req.body);
+    } catch(error) {
+        return next(error);
+    }
 
     try {
         const user = await UserMutations.createUser({ 

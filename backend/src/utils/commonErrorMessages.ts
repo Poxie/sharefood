@@ -1,0 +1,1 @@
+export const UNRECOGNIZED_KEYS = 'Unrecognized key(s) in object'

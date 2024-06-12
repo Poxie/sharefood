@@ -10,6 +10,8 @@ import BadRequestError from "@/errors/BadRequestError";
 import UserQueries from "@/utils/users/userQueries";
 import UserMutations from "@/utils/users/userMutations";
 import UserAuth from "@/utils/users/userAuth";
+import { UserErrorMessages } from "@/utils/users/userErrorMessages";
+import { UNRECOGNIZED_KEYS } from "@/utils/commonErrorMessages";
 
 jest.mock('@/middleware/auth');
 
@@ -150,18 +152,30 @@ describe('Users Routes', () => {
 
             expect(response.status).toBe(401);
         })
-        describe.each([
-            { username: 'username', password: '' },
-            { username: '', password: 'password' },
-            { username: '', password: '' },
-            { username: 'username' },
-            { password: 'password' },
-        ])('when username or password is invalid', (body) => {
-            it('should return 400 status code', async () => {
-                const response = await request.post('/users').send(body);
+        describe('Validation', () => {
+            describe.each([
+                { password: 'password', description: 'username is required', error: UserErrorMessages.USERNAME_REQUIRED },
+                { username: '', password: 'password', description: 'username cannot be empty', error: UserErrorMessages.USERNAME_MIN_LENGTH },
+                { username: '12', password: 'password', description: 'username min character length', error: UserErrorMessages.USERNAME_MIN_LENGTH },
+                { username: 'test', description: 'password is required', error: UserErrorMessages.PASSWORD_REQUIRED },
+                { username: 'test', password: '', description: 'password cannot be empty', error: UserErrorMessages.PASSWORD_MIN_LENGTH },
+                { username: 'test', password: '123567', description: 'password min character legnth', error: UserErrorMessages.PASSWORD_MIN_LENGTH },
+            ])('if the username or password is failing validation', ({ username, password, error, description }) => {
+                it(description, async () => {
+                    const response = await request.post('/users').send({ username, password });
+
+                    expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+                    expect(response.body).toEqual({ message: error });
+                })
+            })
+            it('throws an unrecognized keys error if unknown fields are passed', async () => {
+                const validUserData = { username: 'test', password: 'password' };
+                const response = await request.post('/users').send({ unknown: 'field', ...validUserData });
+
                 expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
-            });
-        });
+                expect(response.body).toEqual({ message: expect.stringContaining(UNRECOGNIZED_KEYS) });
+            })
+        })
     })
     describe('DELETE /users/:id', () => {
         it('should delete a user if the logged user is an admin', async () => {
