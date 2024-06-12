@@ -103,4 +103,18 @@ describe('userAuth', () => {
             })
         })
     })
+
+    describe('hashPassword', () => {
+        it('hashes the password and returns it', async () => {
+            const password = 'normalpassword';
+            const hashedPassword = 'hashedpassword';
+
+            const hashSpy = jest.spyOn(bcrypt, 'hash').mockImplementation(() => hashedPassword);
+
+            const result = await UserAuth.hashPassword(password);
+
+            expect(result).toBe(hashedPassword);
+            expect(hashSpy).toHaveBeenCalledWith(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
+        })
+    })
 })

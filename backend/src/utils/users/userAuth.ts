@@ -39,4 +39,9 @@ export default class UserAuth {
             throw new InvalidAccessTokenError('Invalid access token.');
         }
     }
+
+    static async hashPassword(password: string) {
+        if(!process.env.BCRYPT_SALT_ROUNDS) throw new Error('BCRYPT_SALT_ROUNDS is not defined');
+        return bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
+    }
 }
