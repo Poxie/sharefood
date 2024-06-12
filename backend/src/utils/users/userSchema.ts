@@ -11,3 +11,4 @@ export const userSchema = zod.object({
         .max(MAX_PASSWORD_LENGTH, { message: UserErrorMessages.PASSWORD_MAX_LENGTH }),
     isAdmin: zod.boolean(),
 })
+export type UserSchema = zod.infer<typeof userSchema>;
