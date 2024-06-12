@@ -1,11 +1,16 @@
 import InvalidAccessTokenError from "@/errors/InvalidAccessTokenError";
+import { INVALID_ACCESS_TOKEN } from "@/utils/auth/authErrorMessages";
 import UserAuth from "@/utils/users/userAuth";
 import UserQueries from "@/utils/users/userQueries";
 import { NextFunction, Request, Response } from "express";
 
-async function authenticate(req: Request, res: Response, optional: boolean = false) {
+export async function authenticate(req: Request, res: Response, optional: boolean = false) {
     try {
         const userId = UserAuth.verifyToken(req.cookies);
+        if(!userId) {
+            throw new InvalidAccessTokenError(INVALID_ACCESS_TOKEN);
+        }
+
         const isAdmin = await UserQueries.isAdmin(userId);
 
         res.locals.userId = userId;

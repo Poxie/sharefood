@@ -9,8 +9,8 @@ declare global {
     }
     namespace Express {
         interface Locals {
-            userId: string;
-            isAdmin: boolean;
+            userId: string | undefined;
+            isAdmin: boolean | undefined;
         }
     }
 }
