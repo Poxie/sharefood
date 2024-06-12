@@ -1,5 +1,6 @@
 import { USER_ID_LENGTH } from "./userConstants";
 import UserQueries from "./userQueries";
+import { userSchema } from "./userSchema";
 
 export default class UserUtils {
     static async generateUserId(): Promise<string> {
@@ -18,5 +19,12 @@ export default class UserUtils {
         return Object.fromEntries(
             Object.entries(user as { [k: string]: unknown; }).filter(([key]) => !keys.includes(key as Key))
         ) as Omit<User, Key>;
+    }
+
+    static validateCreateUserInput(reqBody: Record<string, any>) {
+        userSchema
+            .pick({ username: true, password: true })
+            .strict()
+            .parse(reqBody);
     }
 }

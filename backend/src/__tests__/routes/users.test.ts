@@ -1,6 +1,5 @@
 import supertest from "supertest";
 import app from "../../app";
-import { prismaMock } from "../../../singleton";
 import * as AuthMiddleware from '@/middleware/auth';
 import { ERROR_CODES } from "@/errors/errorCodes";
 import UserNotFoundError from "@/errors/UserNotFoundError";
@@ -11,8 +10,9 @@ import UserMutations from "@/utils/users/userMutations";
 import UserAuth from "@/utils/users/userAuth";
 import { UserErrorMessages } from "@/utils/users/userErrorMessages";
 import { UNRECOGNIZED_KEYS } from "@/utils/commonErrorMessages";
-import { mockUser } from "../../../test-utils";
+import { exclude, mockUser } from "../../../test-utils";
 import { User } from "@prisma/client";
+import UserUtils from "@/utils/users/userUtils";
 
 jest.mock('@/middleware/auth');
 
@@ -32,7 +32,7 @@ describe('Users Routes', () => {
         })
     }
 
-    const mockGetUserById = (user: User | null) => jest.spyOn(UserQueries, 'getUserById').mockResolvedValue(user);
+    const mockGetUserById = (user: Omit<User, 'password'> | null) => jest.spyOn(UserQueries, 'getUserById').mockResolvedValue(user);
 
     const userWithoutPassword = () => mockUser({excludedFields: ['password']});
 
@@ -104,6 +104,36 @@ describe('Users Routes', () => {
                 expect(result.body).toEqual({ message: new UserNotFoundError().message });
                 expect(getUserSpy).toHaveBeenCalledWith(userId);
             })
+        })
+    })
+    
+    describe('POST /users', () => {
+        const mockCreateUser = (user: Omit<User, 'password'>) => jest.spyOn(UserMutations, 'createUser').mockResolvedValue(user);
+        const mockCreateUserError = (error: Error) => jest.spyOn(UserMutations, 'createUser').mockRejectedValue(error);
+
+        const user = mockUser();
+        const userWithoutPassword = exclude(user, ['password']);
+        const postData = { username: user.username, password: user.password };
+
+        it('creates the user and returns a user object', async () => {
+            const createUserSpy = mockCreateUser(userWithoutPassword);
+
+            const result = await request.post('/users').send(postData);
+
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual(userWithoutPassword);
+            expect(createUserSpy).toHaveBeenCalledWith(postData);
+        })
+        it('calls the validateCreateUserInput function to ensure user input validation', async () => {
+            const createUserSpy = mockCreateUser(userWithoutPassword);
+            const validateCreateUserInputSpy = jest.spyOn(UserUtils, 'validateCreateUserInput');
+
+            const result = await request.post('/users').send(postData);
+
+            expect(result.status).toBe(200);
+            expect(result.body).toEqual(userWithoutPassword);
+            expect(createUserSpy).toHaveBeenCalledWith(postData);
+            expect(validateCreateUserInputSpy).toHaveBeenCalledWith(postData);
         })
     })
 })

@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import UnauthorizedError from '@/errors/UnauthorizedError';
 import { auth } from '@/middleware/auth';
 import { COOKIE_AGE } from '@/utils/constants';
@@ -9,6 +9,7 @@ import UserAuth from '@/utils/users/userAuth';
 import { ALLOWED_USER_FIELDS } from '@/utils/users/userConstants';
 import { UserSchema, userSchema } from '@/utils/users/userSchema';
 import UserNotFoundError from '@/errors/UserNotFoundError';
+import UserUtils from '@/utils/users/userUtils';
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -34,35 +35,18 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-    const { username, password } = req.body;
+    const data = req.body;
 
-    try {
-        userSchema
-            .pick({ username: true, password: true })
-            .strict()
-            .parse(req.body);
-    } catch(error) {
-        return next(error);
-    }
+    UserUtils.validateCreateUserInput(data);
 
-    try {
-        const user = await UserMutations.createUser({ 
-            username, 
-            password, 
-        });
+    const user = await UserMutations.createUser(data);
 
-        const accessToken = UserAuth.signToken(user.id);
-        res.cookie('accessToken', accessToken, {
-            maxAge: COOKIE_AGE,
-        });
+    const accessToken = UserAuth.signToken(user.id);
+    res.cookie('accessToken', accessToken, {
+        maxAge: COOKIE_AGE,
+    });
 
-        return res.send({
-            user,
-            accessToken,
-        });
-    } catch(error) {
-        return next(error);
-    }
+    return res.send(user);
 });
 
 router.delete('/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
