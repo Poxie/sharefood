@@ -22,13 +22,13 @@ export default class UserUtils {
     }
 
     static validateCreateUserInput(reqBody: Record<string, any>) {
-        userSchema
+        return userSchema
             .pick({ username: true, password: true })
             .strict()
             .parse(reqBody);
     }
     static validateUpdateUserInput(reqBody: Record<string, any>) {
-        userSchema
+        return userSchema
             .pick({ username: true, password: true })
             .strict()
             .partial()

@@ -31,9 +31,7 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 }))
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
-    const data = req.body;
-
-    UserUtils.validateCreateUserInput(data);
+    const data = UserUtils.validateCreateUserInput(req.body);
 
     const user = await UserMutations.createUser(data);
 
@@ -66,9 +64,7 @@ router.patch('/:id', auth, asyncHandler(async (req: Request, res: Response) => {
         throw new UnauthorizedError();
     }
 
-    const data = req.body;
-
-    UserUtils.validateUpdateUserInput(data);
+    const data = UserUtils.validateUpdateUserInput(req.body);
     
     const user = await UserMutations.updateUser(id, data);
 
