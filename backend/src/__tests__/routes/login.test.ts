@@ -5,11 +5,14 @@ import { exclude, mockUser } from "../../../test-utils";
 import UnauthorizedError from "@/errors/UnauthorizedError";
 import { ERROR_CODES } from "@/errors/errorCodes";
 import { User } from "@prisma/client";
+import LoginUtils from "@/utils/login/loginUtils";
+import { INCORRECT_CREDENTIALS } from "@/utils/login/loginErrorMessages";
 
 const request = supertest(app);
 
 describe('POST /login', () => {
     const mockAuthenticateUser = (user: Omit<User, 'password'>) => jest.spyOn(UserAuth, 'authenticateUser').mockResolvedValue(user);
+    const mockAuthenticateUserError = (error: Error) => jest.spyOn(UserAuth, 'authenticateUser').mockRejectedValue(error);
     const mockSignToken = (token: string) => jest.spyOn(UserAuth, 'signToken').mockReturnValue(token);
 
     const userWithoutPassword = () => mockUser({ excludedFields: ['password'] });
@@ -28,5 +31,16 @@ describe('POST /login', () => {
         expect(response.header['set-cookie'].at(0)).toContain(`accessToken=${token}`);
         expect(authenticateSpy).toHaveBeenCalledWith(user.username, password);
         expect(signTokenSpy).toHaveBeenCalledWith(user.id);
+    })
+    it('throws an incorrect credentials error if the authenticateUser function fails', async () => {
+        const data = { username: 'incorrectusername', password: 'password' };
+
+        const error = new UnauthorizedError(INCORRECT_CREDENTIALS);
+        const authenticateSpy = mockAuthenticateUserError(error);
+
+        const response = await request.post('/login').send(data);
+
+        expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
+        expect(response.body).toEqual({ message: error.message });
     })
 })
