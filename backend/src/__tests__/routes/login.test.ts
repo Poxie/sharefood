@@ -43,4 +43,19 @@ describe('POST /login', () => {
         expect(response.status).toBe(ERROR_CODES.UNAUTHORIZED);
         expect(response.body).toEqual({ message: error.message });
     })
+    describe.each([
+        { username: '', password: '' },
+        { username: 'username' },
+        { password: 'password' },
+        { password: 'password', username: 'username', invalid: 'field' },
+    ])('when the request body is missing a required field or have invalid properties', (data) => {
+        it('validates the request body using zod validateLoginInput function', async () => {
+            const validateSpy = jest.spyOn(LoginUtils, 'validateLoginInput');
+    
+            const response = await request.post('/login').send(data);
+    
+            expect(response.status).toBe(ERROR_CODES.BAD_REQUEST);
+            expect(validateSpy).toHaveBeenCalledWith(data);
+        })
+    })
 })
